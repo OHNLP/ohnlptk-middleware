@@ -5,6 +5,12 @@ import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.repositories.APIKeyRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -14,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 
 /**
  * This filter checks against user pricipal/api-key database to verify access
@@ -41,6 +48,12 @@ public class APIKeyAuthorizationFilter extends GenericFilterBean {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED");
             return;
         }
+        User user = apiKey.getUser();
+        // Manually construct authentication details for user
+        SecurityContext sc = SecurityContextHolder.getContext();
+        // TODO construct authorities
+        sc.setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), null, Collections.emptyList()));
         chain.doFilter(req, res);
     }
+
 }
