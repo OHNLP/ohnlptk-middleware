@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 
-public interface APIKeyRepository extends JpaRepository<APIKey, String> {
+public interface APIKeyRepository extends JpaRepository<APIKey, Long> {
     Collection<APIKey> findAPIKeysByUser(User user);
     APIKey findAPIKeyByToken(String value);
 }
