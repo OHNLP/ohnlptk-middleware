@@ -6,12 +6,10 @@ import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.repositories.APIKeyRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -57,6 +55,18 @@ public class APIKeyController {
                             UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
             this.apiKeyRepository.save(newKey);
             return newKey;
+        }
+    }
+
+    @ApiOperation("Deletes the API Key with the given uid value, returns the current mapping of existing api keys")
+    @DeleteMapping("/delete_key")
+    public ResponseEntity<Map<String, APIKey>> delete(Authentication authentication, @RequestParam("token") String token) {
+        APIKey key = this.apiKeyRepository.findAPIKeyByToken(token);
+        if (key == null || !key.getUser().getEmail().equalsIgnoreCase(authentication.getPrincipal().toString())) {
+            return ResponseEntity.notFound().build();
+        } else {
+            this.apiKeyRepository.delete(key);
+            return ResponseEntity.ok(getApiKeys(authentication));
         }
     }
 
