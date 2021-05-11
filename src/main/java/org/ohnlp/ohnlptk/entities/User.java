@@ -1,6 +1,7 @@
 package org.ohnlp.ohnlptk.entities;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Table(name = "USERS")
@@ -18,6 +19,10 @@ public class User {
 
     @Column
     private String imageUrl;
+
+    @OneToMany
+    @JoinColumn(name = "id")
+    private Collection<APIKey> apiKeys;
 
     protected User() {}
 
@@ -44,5 +49,9 @@ public class User {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Collection<APIKey> getApiKeys() {
+        return apiKeys;
     }
 }
