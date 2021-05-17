@@ -1,5 +1,7 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
+import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -27,6 +29,10 @@ public class RuleSetDefinition {
 
     @Column
     private String contexts;
+
+    @OneToMany
+    @JoinColumn(name = "id")
+    private Collection<AuthorityGrant> grants;
 
     public long getId() {
         return id;

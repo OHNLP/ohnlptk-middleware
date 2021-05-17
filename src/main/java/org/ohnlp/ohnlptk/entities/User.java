@@ -1,5 +1,7 @@
 package org.ohnlp.ohnlptk.entities;
 
+import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -23,6 +25,11 @@ public class User {
     @OneToMany
     @JoinColumn(name = "id")
     private Collection<APIKey> apiKeys;
+
+    @OneToMany
+    @JoinColumn(name = "id")
+    private Collection<AuthorityGroupMembership> groups;
+
 
     protected User() {}
 
@@ -53,5 +60,17 @@ public class User {
 
     public Collection<APIKey> getApiKeys() {
         return apiKeys;
+    }
+
+    public void setApiKeys(Collection<APIKey> apiKeys) {
+        this.apiKeys = apiKeys;
+    }
+
+    public Collection<AuthorityGroupMembership> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Collection<AuthorityGroupMembership> groups) {
+        this.groups = groups;
     }
 }
