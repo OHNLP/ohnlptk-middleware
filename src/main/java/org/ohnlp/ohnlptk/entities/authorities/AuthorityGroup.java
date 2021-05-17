@@ -17,11 +17,11 @@ public class AuthorityGroup {
     private String name;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<AuthorityGrant> grants;
 
     @ManyToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<AuthorityGroupMembership> members;
 
     public long getId() {

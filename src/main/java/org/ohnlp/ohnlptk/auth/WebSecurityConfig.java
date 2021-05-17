@@ -8,6 +8,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 
 /**
@@ -46,10 +47,10 @@ public class WebSecurityConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http.cors()
                     .and()
-                    .antMatcher("/**").authorizeRequests()
+                    .antMatcher("/**").authorizeRequests().anyRequest().permitAll()
                     .and()
                     .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
-                    .addFilter(this.apiKeyAuthorizationFilter);
+                    .addFilterAfter(this.apiKeyAuthorizationFilter, BasicAuthenticationFilter.class);
         }
 
     }

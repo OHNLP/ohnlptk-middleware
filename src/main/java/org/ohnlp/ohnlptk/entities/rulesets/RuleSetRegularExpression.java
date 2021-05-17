@@ -17,7 +17,7 @@ public class RuleSetRegularExpression {
     private String text;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private RuleSetDefinition definition;
 
     public long getId() {

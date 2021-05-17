@@ -13,11 +13,11 @@ public class AuthorityGroupMembership {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private User principal;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private AuthorityGroup group;
 
     @Column

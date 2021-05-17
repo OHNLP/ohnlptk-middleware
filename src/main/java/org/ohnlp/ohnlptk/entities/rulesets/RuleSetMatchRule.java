@@ -23,7 +23,7 @@ public class RuleSetMatchRule {
     private String norm;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private RuleSetDefinition definition;
 
 

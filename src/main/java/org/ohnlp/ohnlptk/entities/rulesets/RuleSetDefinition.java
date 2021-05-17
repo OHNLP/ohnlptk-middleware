@@ -14,32 +14,32 @@ public class RuleSetDefinition {
     private long id;
 
     @Column
-    private String project_id;
+    private String rulesetId;
 
     @Column
     private String name;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<RuleSetRegularExpression> regexps;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<RuleSetMatchRule> matchrules;
 
     @Column
     private String contexts;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<AuthorityGrant> grants;
 
     public long getId() {
         return id;
     }
 
-    public String getProject_id() {
-        return project_id;
+    public String getRulesetId() {
+        return rulesetId;
     }
 
     public String getName() {

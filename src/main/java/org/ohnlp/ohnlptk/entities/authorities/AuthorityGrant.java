@@ -14,11 +14,11 @@ public class AuthorityGrant {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private RuleSetDefinition ruleset;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private AuthorityGroup principal;
 
     @Column

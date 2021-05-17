@@ -23,11 +23,11 @@ public class User {
     private String imageUrl;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<APIKey> apiKeys;
 
     @OneToMany
-    @JoinColumn(name = "id")
+    @JoinColumn
     private Collection<AuthorityGroupMembership> groups;
 
 

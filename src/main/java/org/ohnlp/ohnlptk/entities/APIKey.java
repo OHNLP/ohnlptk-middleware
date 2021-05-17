@@ -11,7 +11,7 @@ public class APIKey {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn
     private User user;
 
     @Column
