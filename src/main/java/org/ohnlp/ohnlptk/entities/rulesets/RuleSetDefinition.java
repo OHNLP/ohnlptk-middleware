@@ -57,4 +57,8 @@ public class RuleSetDefinition {
     public String getContexts() {
         return contexts;
     }
+
+    public Collection<AuthorityGrant> getGrants() {
+        return grants;
+    }
 }

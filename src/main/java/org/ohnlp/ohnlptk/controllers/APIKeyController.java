@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.ohnlp.ohnlptk.auth.AuthUtils.getUserForSpringSecurityContextAuth;
+
 /**
  * Handles API Key Management for CLI/Non-SAML/Non-OAuth Authentication
  */
@@ -37,7 +39,7 @@ public class APIKeyController {
     @GetMapping("/api_keys")
     public Map<String, APIKey> getApiKeys(Authentication authentication) {
         Map<String, APIKey> ret = new HashMap<>();
-        this.apiKeyRepository.findAPIKeysByUser(getUserForSpringSecurityContextAuth(authentication)).forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
+        this.apiKeyRepository.findAPIKeysByUser(getUserForSpringSecurityContextAuth(authentication, this.userRepository)).forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
         return ret;
     }
 
@@ -49,7 +51,7 @@ public class APIKeyController {
         if (apiKeys.containsKey(name)) {
             return apiKeys.get(name);
         } else {
-            APIKey newKey = new APIKey(getUserForSpringSecurityContextAuth(authentication),
+            APIKey newKey = new APIKey(getUserForSpringSecurityContextAuth(authentication, this.userRepository),
                     name,
                     Base64.getEncoder().encodeToString(
                             UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
@@ -70,9 +72,5 @@ public class APIKeyController {
         }
     }
 
-    private User getUserForSpringSecurityContextAuth(Authentication authentication) {
-        String principal = authentication.getPrincipal().toString();
-        return this.userRepository.findByEmail(principal);
-    }
 
 }
