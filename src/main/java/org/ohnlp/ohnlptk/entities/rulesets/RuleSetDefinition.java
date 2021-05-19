@@ -61,4 +61,32 @@ public class RuleSetDefinition {
     public Collection<AuthorityGrant> getGrants() {
         return grants;
     }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setRulesetId(String rulesetId) {
+        this.rulesetId = rulesetId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRegexps(Collection<RuleSetRegularExpression> regexps) {
+        this.regexps = regexps;
+    }
+
+    public void setMatchrules(Collection<RuleSetMatchRule> matchrules) {
+        this.matchrules = matchrules;
+    }
+
+    public void setContexts(String contexts) {
+        this.contexts = contexts;
+    }
+
+    public void setGrants(Collection<AuthorityGrant> grants) {
+        this.grants = grants;
+    }
 }

@@ -10,9 +10,7 @@ import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,6 +55,33 @@ public class RulesetController {
                 .map(AuthorityGroupMembership::getPrincipal)
                 .collect(Collectors.toSet()).contains(u)) {
             return ResponseEntity.ok(def);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist. Note that" +
+            " only NLP related changes are written and no changes to authority grants can be done through this endpoint")
+    @PostMapping("/updateRuleset")
+    public ResponseEntity<RuleSetDefinition> updateRuleset(Authentication auth, @RequestBody RuleSetDefinition def) {
+        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
+        if (localDef == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (localDef.getGrants().stream()
+                .filter(g -> g.isWrite() || g.isManage())
+                .map(AuthorityGrant::getPrincipal)
+                .flatMap(group -> group.getMembers().stream())
+                .map(AuthorityGroupMembership::getPrincipal)
+                .map(User::getEmail)
+                .collect(Collectors.toSet()).contains(u.getEmail())) {
+            localDef.setName(def.getName());
+            localDef.setRegexps(def.getRegexps());
+            localDef.setMatchrules(def.getMatchrules());
+            localDef.setContexts(def.getContexts());
+            this.ruleSetRepository.save(localDef);
+            return ResponseEntity.ok(localDef);
         } else {
             return ResponseEntity.notFound().build();
         }
