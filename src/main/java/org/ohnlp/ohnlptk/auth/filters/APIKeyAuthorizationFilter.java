@@ -51,7 +51,6 @@ public class APIKeyAuthorizationFilter extends GenericFilterBean {
         User user = apiKey.getUser();
         // Manually construct authentication details for user
         SecurityContext sc = SecurityContextHolder.getContext();
-        // TODO construct authorities
         sc.setAuthentication(new UsernamePasswordAuthenticationToken(user.getEmail(), null, Collections.emptyList()));
         chain.doFilter(req, res);
     }
