@@ -80,16 +80,14 @@ public class RulesetController {
         grant.setRuleset(def);
         grant.setPrincipal(u.getMemberGroup());
         def.setGrants(Collections.singleton(grant));
-        this.ruleSetRepository.save(def);
+        def = this.ruleSetRepository.save(def);
         return ResponseEntity.ok(def);
     }
 
-    @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist. Note that" +
-            " only NLP related changes are written and no changes to authority grants can be done through this endpoint")
+    @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist")
     @PostMapping("/updateRuleset")
     public ResponseEntity<RuleSetDefinition> updateRuleset(Authentication auth, @RequestBody RuleSetDefinition def) {
         User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
-        // Don't overwrite, copy specific fields only for security purposes
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
         if (localDef == null) {
             return ResponseEntity.notFound().build();
@@ -101,12 +99,8 @@ public class RulesetController {
                 .map(AuthorityGroupMembership::getPrincipal)
                 .map(User::getEmail)
                 .collect(Collectors.toSet()).contains(u.getEmail())) {
-            localDef.setName(def.getName());
-            localDef.setRegexps(def.getRegexps());
-            localDef.setMatchrules(def.getMatchrules());
-            localDef.setContexts(def.getContexts());
-            this.ruleSetRepository.save(localDef);
-            return ResponseEntity.ok(localDef);
+            def = this.ruleSetRepository.save(def);
+            return ResponseEntity.ok(def);
         } else {
             return ResponseEntity.notFound().build();
         }

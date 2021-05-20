@@ -39,7 +39,8 @@ public class APIKeyController {
     @GetMapping("/api_keys")
     public Map<String, APIKey> getApiKeys(Authentication authentication) {
         Map<String, APIKey> ret = new HashMap<>();
-        this.apiKeyRepository.findAPIKeysByUser(getUserForSpringSecurityContextAuth(authentication, this.userRepository)).forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
+        this.apiKeyRepository.findAPIKeysByUser(getUserForSpringSecurityContextAuth(authentication, this.userRepository))
+                .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
         return ret;
     }
 
@@ -55,7 +56,7 @@ public class APIKeyController {
                     name,
                     Base64.getEncoder().encodeToString(
                             UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
-            this.apiKeyRepository.save(newKey);
+            newKey = this.apiKeyRepository.save(newKey);
             return newKey;
         }
     }
