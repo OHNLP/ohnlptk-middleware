@@ -10,8 +10,8 @@ import javax.persistence.*;
 public class AuthorityGrant {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne
     @JoinColumn
@@ -30,11 +30,11 @@ public class AuthorityGrant {
     @Column
     private boolean manage;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

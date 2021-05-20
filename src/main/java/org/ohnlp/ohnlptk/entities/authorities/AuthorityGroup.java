@@ -10,8 +10,8 @@ import java.util.Collection;
 public class AuthorityGroup {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @Column
     private String name;
@@ -24,11 +24,11 @@ public class AuthorityGroup {
     @JoinColumn
     private Collection<AuthorityGroupMembership> members;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

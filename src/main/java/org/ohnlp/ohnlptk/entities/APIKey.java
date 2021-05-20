@@ -7,8 +7,8 @@ import javax.persistence.*;
 public class APIKey {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @ManyToOne
     @JoinColumn
@@ -28,7 +28,7 @@ public class APIKey {
         this.user = user;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

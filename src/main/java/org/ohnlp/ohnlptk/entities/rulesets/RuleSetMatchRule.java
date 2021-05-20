@@ -7,8 +7,8 @@ import javax.persistence.*;
 public class RuleSetMatchRule {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @Column
     private String regexp;
@@ -26,9 +26,7 @@ public class RuleSetMatchRule {
     @JoinColumn
     private RuleSetDefinition definition;
 
-
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

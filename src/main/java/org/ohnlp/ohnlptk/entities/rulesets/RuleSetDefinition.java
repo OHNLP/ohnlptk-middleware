@@ -10,8 +10,8 @@ import java.util.Collection;
 public class RuleSetDefinition {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @Column
     private String rulesetId;
@@ -34,7 +34,7 @@ public class RuleSetDefinition {
     @JoinColumn
     private Collection<AuthorityGrant> grants;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -62,7 +62,7 @@ public class RuleSetDefinition {
         return grants;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

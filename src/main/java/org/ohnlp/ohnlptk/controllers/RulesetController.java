@@ -12,7 +12,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.ohnlp.ohnlptk.auth.AuthUtils.getUserForSpringSecurityContextAuth;
@@ -60,11 +63,33 @@ public class RulesetController {
         }
     }
 
+    @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
+            "manage access")
+    @PostMapping("/newRuleset")
+    public ResponseEntity<RuleSetDefinition> createRuleset(Authentication auth, @RequestParam("name") String rulesetName) {
+        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        // Create new ruleset itself
+        RuleSetDefinition def = new RuleSetDefinition();
+        def.setName(rulesetName);
+        def.setRulesetId(UUID.randomUUID().toString().toUpperCase(Locale.ROOT));
+        // Populate new ruleset with authority grant for requesting user
+        AuthorityGrant grant = new AuthorityGrant();
+        grant.setManage(true);
+        grant.setWrite(true);
+        grant.setRead(true);
+        grant.setRuleset(def);
+        grant.setPrincipal(u.getMemberGroup());
+        def.setGrants(Collections.singleton(grant));
+        this.ruleSetRepository.save(def);
+        return ResponseEntity.ok(def);
+    }
+
     @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist. Note that" +
             " only NLP related changes are written and no changes to authority grants can be done through this endpoint")
     @PostMapping("/updateRuleset")
     public ResponseEntity<RuleSetDefinition> updateRuleset(Authentication auth, @RequestBody RuleSetDefinition def) {
         User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        // Don't overwrite, copy specific fields only for security purposes
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
         if (localDef == null) {
             return ResponseEntity.notFound().build();

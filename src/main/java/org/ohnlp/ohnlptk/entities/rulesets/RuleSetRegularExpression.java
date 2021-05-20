@@ -7,8 +7,8 @@ import javax.persistence.*;
 public class RuleSetRegularExpression {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @Column
     private String name;
@@ -20,7 +20,7 @@ public class RuleSetRegularExpression {
     @JoinColumn
     private RuleSetDefinition definition;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

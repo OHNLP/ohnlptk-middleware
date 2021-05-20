@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.entities;
 
+import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 
 import javax.persistence.*;
@@ -10,8 +11,8 @@ import java.util.Collection;
 public class User {
     @Id
     @Column
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private long id;
+    @GeneratedValue
+    private Long id;
 
     @Column
     private String name;
@@ -30,6 +31,9 @@ public class User {
     @JoinColumn
     private Collection<AuthorityGroupMembership> groups;
 
+    @OneToOne
+    @JoinColumn
+    private AuthorityGroup memberGroup;
 
     protected User() {}
 
@@ -38,7 +42,7 @@ public class User {
         this.email = email;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -72,5 +76,13 @@ public class User {
 
     public void setGroups(Collection<AuthorityGroupMembership> groups) {
         this.groups = groups;
+    }
+
+    public AuthorityGroup getMemberGroup() {
+        return memberGroup;
+    }
+
+    public void setMemberGroup(AuthorityGroup memberGroup) {
+        this.memberGroup = memberGroup;
     }
 }
