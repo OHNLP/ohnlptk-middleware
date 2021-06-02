@@ -31,10 +31,6 @@ public class User {
     @JoinColumn
     private Collection<AuthorityGroupMembership> groups;
 
-    @OneToOne
-    @JoinColumn
-    private AuthorityGroup memberGroup;
-
     protected User() {}
 
     public User(String name, String email) {
@@ -76,13 +72,5 @@ public class User {
 
     public void setGroups(Collection<AuthorityGroupMembership> groups) {
         this.groups = groups;
-    }
-
-    public AuthorityGroup getMemberGroup() {
-        return memberGroup;
-    }
-
-    public void setMemberGroup(AuthorityGroup memberGroup) {
-        this.memberGroup = memberGroup;
     }
 }

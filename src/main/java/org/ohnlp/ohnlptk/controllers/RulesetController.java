@@ -5,6 +5,7 @@ import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
+import org.ohnlp.ohnlptk.repositories.AuthorityGroupRepository;
 import org.ohnlp.ohnlptk.repositories.RuleSetRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +29,13 @@ import static org.ohnlp.ohnlptk.auth.AuthUtils.getUserForSpringSecurityContextAu
 public class RulesetController {
     private final RuleSetRepository ruleSetRepository;
     private final UserRepository userRepository;
+    private final AuthorityGroupRepository authorityGroupRepository;
 
-    public RulesetController(RuleSetRepository ruleSetRepository, UserRepository userRepository) {
+    public RulesetController(RuleSetRepository ruleSetRepository, UserRepository userRepository,
+                             AuthorityGroupRepository authorityGroupRepository) {
         this.ruleSetRepository = ruleSetRepository;
         this.userRepository = userRepository;
+        this.authorityGroupRepository = authorityGroupRepository;
     }
 
 
@@ -78,7 +82,8 @@ public class RulesetController {
         grant.setWrite(true);
         grant.setRead(true);
         grant.setRuleset(def);
-        grant.setPrincipal(u.getMemberGroup());
+        grant.setPrincipal(this.authorityGroupRepository
+                .getAuthorityGroupByName(u.getEmail().toLowerCase(Locale.ROOT)));
         def.setGrants(Collections.singleton(grant));
         def = this.ruleSetRepository.save(def);
         return ResponseEntity.ok(def);
@@ -104,5 +109,25 @@ public class RulesetController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @ApiOperation("Deletes, if user has manage permissions to it, the ruleset associated with the passed ruleset ID. " +
+            "Returns the list of the authenticating user's projects")
+    @DeleteMapping("/deleteRuleset")
+    public List<RuleSetDefinition> deleteRuleset(Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
+        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetId);
+        if (localDef != null) {
+            if (localDef.getGrants().stream()
+                    .filter(AuthorityGrant::isManage)
+                    .map(AuthorityGrant::getPrincipal)
+                    .flatMap(group -> group.getMembers().stream())
+                    .map(AuthorityGroupMembership::getPrincipal)
+                    .map(User::getEmail)
+                    .collect(Collectors.toSet()).contains(u.getEmail())) {
+                this.ruleSetRepository.delete(localDef);
+            }
+        }
+        return getRulesets(auth);
     }
 }

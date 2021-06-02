@@ -3,6 +3,8 @@ package org.ohnlp.ohnlptk.auth.oidc;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
+import org.ohnlp.ohnlptk.repositories.AuthorityGroupMembershipRepository;
+import org.ohnlp.ohnlptk.repositories.AuthorityGroupRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
@@ -21,10 +23,15 @@ import java.util.Locale;
 public class OIDCUserRegistrationService extends OidcUserService {
 
     private final UserRepository userRepository;
+    private final AuthorityGroupRepository authorityGroupRepository;
+    private final AuthorityGroupMembershipRepository authorityGroupMembershipRepository;
 
     @Autowired
-    public OIDCUserRegistrationService(UserRepository userRepository) {
+    public OIDCUserRegistrationService(UserRepository userRepository, AuthorityGroupRepository authorityGroupRepository,
+                                       AuthorityGroupMembershipRepository authorityGroupMembershipRepository) {
         this.userRepository = userRepository;
+        this.authorityGroupRepository = authorityGroupRepository;
+        this.authorityGroupMembershipRepository = authorityGroupMembershipRepository;
     }
 
     @Override
@@ -43,12 +50,15 @@ public class OIDCUserRegistrationService extends OidcUserService {
             // Create default user-specific authority group with no admin and user as only member
             AuthorityGroup memberGroup = new AuthorityGroup();
             memberGroup.setName(principal.toLowerCase(Locale.ROOT));
+            memberGroup = this.authorityGroupRepository.save(memberGroup);
             AuthorityGroupMembership membership = new AuthorityGroupMembership();
             membership.setAdmin(false);
             membership.setGroup(memberGroup);
             membership.setPrincipal(user);
+            membership = this.authorityGroupMembershipRepository.save(membership);
             memberGroup.setMembers(Collections.singleton(membership));
-            user.setMemberGroup(memberGroup);
+            this.authorityGroupRepository.save(memberGroup);
+            user.setGroups(Collections.singletonList(membership));
         }
         this.userRepository.save(user);
     }
