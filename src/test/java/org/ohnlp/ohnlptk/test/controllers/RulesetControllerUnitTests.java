@@ -6,11 +6,14 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.OHNLPTKWebApplication;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.auth.oidc.OIDCUserRegistrationService;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
+import org.ohnlp.ohnlptk.entities.rulesets.RuleSetMatchRule;
+import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -143,17 +143,81 @@ public class RulesetControllerUnitTests {
         Assert.isTrue(def.getRulesetId().equals(this.otherUserTestRulesetId), "Retrieved ruleset is of a ruleset ID");
 
         // Check retrieval of other user's created ruleset returns nothing with error code 404
-        ResponseEntity<RuleSetDefinition> ret = this.rulesetController.getRulesetForID(this.mockUserAuth2, this.testRulesetId);
-        Assert.isNull(ret.getBody(), "A ruleset was returned when user should not have read access");
-        Assert.isTrue(ret.getStatusCodeValue() == 404,
+        ResponseEntity<RuleSetDefinition> resp = this.rulesetController.getRulesetForID(this.mockUserAuth2, this.testRulesetId);
+        Assert.isNull(resp.getBody(), "A ruleset was returned when user should not have read access");
+        Assert.isTrue(resp.getStatusCodeValue() == 404,
                 "An error code other than 404 not found returned for mis-authenticated retrievals, potentially" +
                         "leaking information!");
 
         // Check retrieval using bogus UUID
-        ret = this.rulesetController.getRulesetForID(this.mockUserAuth2, UUID.randomUUID().toString());
-        Assert.isNull(ret.getBody(), "A ruleset was returned when there should not be any");
-        Assert.isTrue(ret.getStatusCodeValue() == 404,
+        resp = this.rulesetController.getRulesetForID(this.mockUserAuth2, UUID.randomUUID().toString());
+        Assert.isNull(resp.getBody(), "A ruleset was returned when there should not be any");
+        Assert.isTrue(resp.getStatusCodeValue() == 404,
                 "An error code other than 404 not found returned for non-existing ruleset");
+    }
+
+    /**
+     * Tests the /updateRuleset REST endpoint
+     *
+     * Adds a new regexp terms list and verifies that retrieving the ruleset again by ruleset ID reflects those changes.
+     * Also verifies that modifications to other people's rulesets cannot be done
+     *
+     * TODO: verify read vs. write/manage access by creating new project and manually assigning only read perms
+     * TODO: more thorough tests of individual changes/change permutations to the input ruleset to be updated
+     */
+    @Test
+    @Order(5)
+    public void updateRulesetTest() {
+        // We already test this works correctly in #getForIDTest()
+        RuleSetDefinition def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
+        // Verify not polluted from elsewhere
+        Assert.isTrue(Objects.requireNonNull(def).getRegexps().isEmpty(), "Regular Expressions are Not Empty Before Update");
+        // Mock a sample regex and update our definition with it
+        RuleSetRegularExpression regex = Mockito.mock(RuleSetRegularExpression.class);
+        Mockito.when(regex.getName()).thenReturn("TESTREGEXLIST");
+        Mockito.when(regex.getText()).thenReturn("Test Regex 1\nTest Regex 2\r\nTest Regex 3");
+        Objects.requireNonNull(def).setRegexps(Collections.singletonList(regex));
+        def = this.rulesetController.updateRuleset(this.mockUserAuth, def).getBody();
+        Assert.notNull(def, "Returned RulesetDefinition after Update is Null");
+        Assert.isTrue(!def.getRegexps().isEmpty(), "Returned Regular Expressions are Empty after Update");
+        List<RuleSetDefinition> defs = this.rulesetController.getRulesets(this.mockUserAuth);
+        Assert.isTrue( defs.size() == 6, "Expected 6 returned rulesets, got " + defs.size() + ", " +
+                "merge did not occur correctly!");
+
+        // Now try doing the same thing, except we don't have write permissions - retrieve mockUserAuth2's project here
+        def = this.rulesetController.getRulesetForID(this.mockUserAuth2, this.otherUserTestRulesetId).getBody();
+        // Verify not polluted from elsewhere
+        Assert.isTrue(Objects.requireNonNull(def).getRegexps().isEmpty(), "Regular Expressions are Not Empty Before Update");
+        Objects.requireNonNull(def).setRegexps(Collections.singletonList(regex));
+        // And save using mockUserAuth instead
+        ResponseEntity<RuleSetDefinition> resp = this.rulesetController.updateRuleset(this.mockUserAuth, def);
+        Assert.isNull(resp.getBody(), "A ruleset was returned when user should not have write access");
+        Assert.isTrue(resp.getStatusCodeValue() == 404,
+                "An error code other than 404 not found returned for mis-authenticated writes, potentially" +
+                        "leaking information!");
+        defs = this.rulesetController.getRulesets(this.mockUserAuth2);
+        Assert.isTrue( defs.size() == 1, "Expected 1 returned ruleset, got " + defs.size() + ", " +
+                "writing occurred despite no permissions!");
+
+    }
+
+    /**
+     * Tests the /deleteRuleset endpoint
+     *
+     * Verifies that deletion occurs, and that deleting projects for which you do not have manage access does NOT work
+     */
+    @Test
+    @Order(6)
+    public void deleteRulesetTest() {
+        // Delete mockUserAuth's ruleset and verify
+        List<RuleSetDefinition> defs = this.rulesetController.deleteRuleset(this.mockUserAuth, this.testRulesetId);
+        Assert.isTrue( defs.size() == 5, "Expected 5 returned rulesets, got " + defs.size() + ", " +
+                "delete did not occur correctly!");
+
+        // Now delete mockUserAuth2's ruleset using mockUserAuth and verify no delete occurred
+        this.rulesetController.deleteRuleset(this.mockUserAuth, this.otherUserTestRulesetId);
+        Assert.isTrue(this.rulesetController.getRulesets(this.mockUserAuth2).size() > 0,
+                "Expected >0 returned rulesets, got 0, delete occurred despite no permissions");
     }
 
 }
