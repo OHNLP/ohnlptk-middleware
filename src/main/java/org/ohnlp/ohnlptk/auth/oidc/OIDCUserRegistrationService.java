@@ -43,7 +43,7 @@ public class OIDCUserRegistrationService extends OidcUserService {
         return user;
     }
 
-    private void loadUserLocal(String principal, String name) {
+    public void loadUserLocal(String principal, String name) {
         User user = this.userRepository.findByEmail(principal);
         if (user == null) {
             user = new User(name, principal);
