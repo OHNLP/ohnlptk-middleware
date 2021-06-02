@@ -5,6 +5,7 @@ import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 @Table(name = "USERS")
@@ -72,5 +73,18 @@ public class User {
 
     public void setGroups(Collection<AuthorityGroupMembership> groups) {
         this.groups = groups;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(imageUrl, user.imageUrl) && Objects.equals(apiKeys, user.apiKeys) && Objects.equals(groups, user.groups);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, imageUrl, apiKeys, groups);
     }
 }

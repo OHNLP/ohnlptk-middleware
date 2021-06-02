@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @TestPropertySource(
         locations = "classpath:application-test.properties")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class RulesetControllerTests {
+public class RulesetControllerUnitTests {
     @Autowired
     private RulesetController rulesetController;
 

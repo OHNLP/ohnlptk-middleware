@@ -4,6 +4,7 @@ import org.ohnlp.ohnlptk.entities.User;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 @Table(name = "AUTHORITY_GROUPS")
@@ -54,5 +55,18 @@ public class AuthorityGroup {
 
     public void setMembers(Collection<AuthorityGroupMembership> members) {
         this.members = members;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuthorityGroup that = (AuthorityGroup) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(grants, that.grants) && Objects.equals(members, that.members);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, grants, members);
     }
 }

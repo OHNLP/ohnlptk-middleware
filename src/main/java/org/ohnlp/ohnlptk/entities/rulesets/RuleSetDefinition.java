@@ -4,6 +4,7 @@ import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 @Table(name = "RULESET_DEFS")
@@ -88,5 +89,18 @@ public class RuleSetDefinition {
 
     public void setGrants(Collection<AuthorityGrant> grants) {
         this.grants = grants;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RuleSetDefinition that = (RuleSetDefinition) o;
+        return Objects.equals(id, that.id) && Objects.equals(rulesetId, that.rulesetId) && Objects.equals(name, that.name) && Objects.equals(regexps, that.regexps) && Objects.equals(matchrules, that.matchrules) && Objects.equals(contexts, that.contexts) && Objects.equals(grants, that.grants);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, rulesetId, name, regexps, matchrules, contexts, grants);
     }
 }

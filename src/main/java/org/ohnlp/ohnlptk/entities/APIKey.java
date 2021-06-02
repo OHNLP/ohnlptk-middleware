@@ -1,6 +1,7 @@
 package org.ohnlp.ohnlptk.entities;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "API_KEYS")
@@ -42,5 +43,18 @@ public class APIKey {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        APIKey apiKey = (APIKey) o;
+        return Objects.equals(id, apiKey.id) && Objects.equals(user, apiKey.user) && Objects.equals(token, apiKey.token) && Objects.equals(name, apiKey.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, user, token, name);
     }
 }

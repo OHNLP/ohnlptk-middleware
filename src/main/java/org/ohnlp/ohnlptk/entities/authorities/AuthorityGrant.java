@@ -4,6 +4,7 @@ import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "AUTHORITY_GRANTS")
@@ -76,5 +77,18 @@ public class AuthorityGrant {
 
     public void setManage(boolean manage) {
         this.manage = manage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuthorityGrant that = (AuthorityGrant) o;
+        return read == that.read && write == that.write && manage == that.manage && Objects.equals(id, that.id) && Objects.equals(ruleset, that.ruleset) && Objects.equals(principal, that.principal);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, ruleset, principal, read, write, manage);
     }
 }
