@@ -1,9 +1,9 @@
 package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
+import org.ohnlp.ohnlptk.auth.AuthUtils;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
-import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 import org.ohnlp.ohnlptk.repositories.AuthorityGroupRepository;
 import org.ohnlp.ohnlptk.repositories.RuleSetRepository;
@@ -17,9 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import static org.ohnlp.ohnlptk.auth.AuthUtils.getUserForSpringSecurityContextAuth;
+import static org.ohnlp.ohnlptk.auth.AuthUtils.*;
 
 /**
  * Contains NLP ruleset management functions
@@ -55,12 +54,7 @@ public class RulesetController {
             return ResponseEntity.notFound().build();
         }
         // Filter grants to semantic has read perms, then get group members and check if user is contained within
-        if (def.getGrants().stream()
-                .filter(g -> g.isRead() || g.isWrite() || g.isManage())
-                .map(AuthorityGrant::getPrincipal)
-                .flatMap(group -> group.getMembers().stream())
-                .map(AuthorityGroupMembership::getPrincipal)
-                .collect(Collectors.toSet()).contains(u)) {
+        if (AuthUtils.userCanReadRuleset(u, def)) {
             return ResponseEntity.ok(def);
         } else {
             return ResponseEntity.notFound().build();
@@ -97,13 +91,7 @@ public class RulesetController {
         if (localDef == null) {
             return ResponseEntity.notFound().build();
         }
-        if (localDef.getGrants().stream()
-                .filter(g -> g.isWrite() || g.isManage())
-                .map(AuthorityGrant::getPrincipal)
-                .flatMap(group -> group.getMembers().stream())
-                .map(AuthorityGroupMembership::getPrincipal)
-                .map(User::getEmail)
-                .collect(Collectors.toSet()).contains(u.getEmail())) {
+        if (userCanWriteRuleset(u, localDef)) {
             def = this.ruleSetRepository.save(def);
             return ResponseEntity.ok(def);
         } else {
@@ -118,13 +106,7 @@ public class RulesetController {
         User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetId);
         if (localDef != null) {
-            if (localDef.getGrants().stream()
-                    .filter(AuthorityGrant::isManage)
-                    .map(AuthorityGrant::getPrincipal)
-                    .flatMap(group -> group.getMembers().stream())
-                    .map(AuthorityGroupMembership::getPrincipal)
-                    .map(User::getEmail)
-                    .collect(Collectors.toSet()).contains(u.getEmail())) {
+            if (userCanManageRuleset(u, localDef)) {
                 this.ruleSetRepository.delete(localDef);
             }
         }
