@@ -1,7 +1,7 @@
 package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
-import org.ohnlp.ohnlptk.auth.AuthAndAccessUtils;
+import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.ohnlp.ohnlptk.auth.AuthAndAccessUtils.*;
 
 /**
  * Contains NLP ruleset management functions
@@ -29,32 +28,34 @@ public class RulesetController {
     private final RuleSetRepository ruleSetRepository;
     private final UserRepository userRepository;
     private final AuthorityGroupRepository authorityGroupRepository;
+    private final AuthAndAccessComponent authAndAccessComponent;
 
     public RulesetController(RuleSetRepository ruleSetRepository, UserRepository userRepository,
-                             AuthorityGroupRepository authorityGroupRepository) {
+                             AuthorityGroupRepository authorityGroupRepository, AuthAndAccessComponent authAndAccessComponent) {
         this.ruleSetRepository = ruleSetRepository;
         this.userRepository = userRepository;
         this.authorityGroupRepository = authorityGroupRepository;
+        this.authAndAccessComponent = authAndAccessComponent;
     }
 
 
     @ApiOperation("Retrieves a list of ruleset definitions for which the authenticated user has read access")
     @GetMapping("/getAllForUser")
     public List<RuleSetDefinition> getRulesets(Authentication auth) {
-        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         return this.ruleSetRepository.getRulesetsForUser(u);
     }
 
     @ApiOperation("Retrieves, if user has read permissions to it, the ruleset corresponding to ruleset_id")
     @GetMapping("/getForID")
     public ResponseEntity<RuleSetDefinition> getRulesetForID(Authentication auth, @RequestParam("ruleset_id") String rulesetID) {
-        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition def = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetID);
         if (def == null) {
             return ResponseEntity.notFound().build();
         }
         // Filter grants to semantic has read perms, then get group members and check if user is contained within
-        if (AuthAndAccessUtils.userCanReadRuleset(u, def)) {
+        if (this.authAndAccessComponent.userCanReadRuleset(u, def)) {
             return ResponseEntity.ok(def);
         } else {
             return ResponseEntity.notFound().build();
@@ -65,7 +66,7 @@ public class RulesetController {
             "manage access")
     @PostMapping("/newRuleset")
     public ResponseEntity<RuleSetDefinition> createRuleset(Authentication auth, @RequestParam("name") String rulesetName) {
-        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         // Create new ruleset itself
         RuleSetDefinition def = new RuleSetDefinition();
         def.setName(rulesetName);
@@ -86,12 +87,12 @@ public class RulesetController {
     @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist")
     @PostMapping("/updateRuleset")
     public ResponseEntity<RuleSetDefinition> updateRuleset(Authentication auth, @RequestBody RuleSetDefinition def) {
-        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
         if (localDef == null) {
             return ResponseEntity.notFound().build();
         }
-        if (userCanWriteRuleset(u, localDef)) {
+        if (this.authAndAccessComponent.userCanWriteRuleset(u, localDef)) {
             def = this.ruleSetRepository.save(def);
             return ResponseEntity.ok(def);
         } else {
@@ -103,10 +104,10 @@ public class RulesetController {
             "Returns the list of the authenticating user's projects")
     @DeleteMapping("/deleteRuleset")
     public List<RuleSetDefinition> deleteRuleset(Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
-        User u = getUserForSpringSecurityContextAuth(auth, this.userRepository);
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetId);
         if (localDef != null) {
-            if (userCanManageRuleset(u, localDef)) {
+            if (this.authAndAccessComponent.userCanManageRuleset(u, localDef)) {
                 this.ruleSetRepository.delete(localDef);
             }
         }

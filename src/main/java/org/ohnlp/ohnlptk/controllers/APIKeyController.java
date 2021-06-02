@@ -1,6 +1,7 @@
 package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
+import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.entities.APIKey;
 import org.ohnlp.ohnlptk.repositories.APIKeyRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
@@ -16,8 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ohnlp.ohnlptk.auth.AuthAndAccessUtils.getUserForSpringSecurityContextAuth;
-
 /**
  * Handles API Key Management for CLI/Non-SAML/Non-OAuth Authentication
  */
@@ -26,11 +25,14 @@ import static org.ohnlp.ohnlptk.auth.AuthAndAccessUtils.getUserForSpringSecurity
 public class APIKeyController {
     private final APIKeyRepository apiKeyRepository;
     private final UserRepository userRepository;
+    private final AuthAndAccessComponent authAndAccessComponent;
 
     @Autowired
-    public APIKeyController(APIKeyRepository apiKeyRepository, UserRepository userRepository) {
+    public APIKeyController(APIKeyRepository apiKeyRepository, UserRepository userRepository,
+                            AuthAndAccessComponent authAndAccessComponent) {
         this.apiKeyRepository = apiKeyRepository;
         this.userRepository = userRepository;
+        this.authAndAccessComponent = authAndAccessComponent;
     }
 
 
@@ -38,7 +40,7 @@ public class APIKeyController {
     @GetMapping("/api_keys")
     public Map<String, APIKey> getApiKeys(Authentication authentication) {
         Map<String, APIKey> ret = new HashMap<>();
-        this.apiKeyRepository.findAPIKeysByUser(getUserForSpringSecurityContextAuth(authentication, this.userRepository))
+        this.apiKeyRepository.findAPIKeysByUser(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication))
                 .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
         return ret;
     }
@@ -51,7 +53,7 @@ public class APIKeyController {
         if (apiKeys.containsKey(name)) {
             return apiKeys.get(name);
         } else {
-            APIKey newKey = new APIKey(getUserForSpringSecurityContextAuth(authentication, this.userRepository),
+            APIKey newKey = new APIKey(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication),
                     name,
                     Base64.getEncoder().encodeToString(
                             UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
