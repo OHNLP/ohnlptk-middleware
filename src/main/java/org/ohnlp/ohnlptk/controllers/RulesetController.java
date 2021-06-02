@@ -38,6 +38,27 @@ public class RulesetController {
         this.authAndAccessComponent = authAndAccessComponent;
     }
 
+    @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
+            "manage access")
+    @PostMapping("/newRuleset")
+    public ResponseEntity<RuleSetDefinition> createRuleset(Authentication auth, @RequestParam("name") String rulesetName) {
+        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
+        // Create new ruleset itself
+        RuleSetDefinition def = new RuleSetDefinition();
+        def.setName(rulesetName);
+        def.setRulesetId(UUID.randomUUID().toString().toUpperCase(Locale.ROOT));
+        // Populate new ruleset with authority grant for requesting user
+        AuthorityGrant grant = new AuthorityGrant();
+        grant.setManage(true);
+        grant.setWrite(true);
+        grant.setRead(true);
+        grant.setRuleset(def);
+        grant.setPrincipal(this.authorityGroupRepository
+                .getAuthorityGroupByName(u.getEmail().toLowerCase(Locale.ROOT)));
+        def.setGrants(Collections.singleton(grant));
+        def = this.ruleSetRepository.save(def);
+        return ResponseEntity.ok(def);
+    }
 
     @ApiOperation("Retrieves a list of ruleset definitions for which the authenticated user has read access")
     @GetMapping("/getAllForUser")
@@ -60,28 +81,6 @@ public class RulesetController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
-            "manage access")
-    @PostMapping("/newRuleset")
-    public ResponseEntity<RuleSetDefinition> createRuleset(Authentication auth, @RequestParam("name") String rulesetName) {
-        User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
-        // Create new ruleset itself
-        RuleSetDefinition def = new RuleSetDefinition();
-        def.setName(rulesetName);
-        def.setRulesetId(UUID.randomUUID().toString().toUpperCase(Locale.ROOT));
-        // Populate new ruleset with authority grant for requesting user
-        AuthorityGrant grant = new AuthorityGrant();
-        grant.setManage(true);
-        grant.setWrite(true);
-        grant.setRead(true);
-        grant.setRuleset(def);
-        grant.setPrincipal(this.authorityGroupRepository
-                .getAuthorityGroupByName(u.getEmail().toLowerCase(Locale.ROOT)));
-        def.setGrants(Collections.singleton(grant));
-        def = this.ruleSetRepository.save(def);
-        return ResponseEntity.ok(def);
     }
 
     @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist")
