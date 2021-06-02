@@ -1,10 +1,14 @@
 package org.ohnlp.ohnlptk.entities;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 @Entity
@@ -19,17 +23,20 @@ public class User {
     private String name;
 
     @Column
+    @NaturalId
     private String email;
 
     @Column
     private String imageUrl;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<APIKey> apiKeys;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<AuthorityGroupMembership> groups;
 
     protected User() {}
@@ -80,11 +87,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(email, user.email) && Objects.equals(imageUrl, user.imageUrl) && Objects.equals(apiKeys, user.apiKeys) && Objects.equals(groups, user.groups);
+        return Objects.equals(id, user.id) && Objects.equals(name, user.name) && Objects.equals(email, user.email)
+                && Objects.equals(imageUrl, user.imageUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, imageUrl, apiKeys, groups);
+        return Objects.hash(id, name, email, imageUrl);
     }
 }

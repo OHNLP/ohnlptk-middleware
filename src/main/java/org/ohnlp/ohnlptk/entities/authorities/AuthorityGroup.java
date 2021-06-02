@@ -1,5 +1,8 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.User;
 
 import javax.persistence.*;
@@ -15,14 +18,16 @@ public class AuthorityGroup {
     private Long id;
 
     @Column
+    @NaturalId
     private String name;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     private Collection<AuthorityGrant> grants;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<AuthorityGroupMembership> members;
 
     public Long getId() {
@@ -62,11 +67,11 @@ public class AuthorityGroup {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthorityGroup that = (AuthorityGroup) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(grants, that.grants) && Objects.equals(members, that.members);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, grants, members);
+        return Objects.hash(id, name);
     }
 }

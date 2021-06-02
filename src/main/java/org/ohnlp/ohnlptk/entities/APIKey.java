@@ -1,5 +1,7 @@
 package org.ohnlp.ohnlptk.entities;
 
+import org.hibernate.annotations.NaturalId;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -13,9 +15,11 @@ public class APIKey {
 
     @ManyToOne
     @JoinColumn
+    @NaturalId
     private User user;
 
     @Column
+    @NaturalId
     private String token;
 
     @Column

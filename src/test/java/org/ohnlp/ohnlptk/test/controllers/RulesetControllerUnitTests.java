@@ -1,18 +1,13 @@
 package org.ohnlp.ohnlptk.test.controllers;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.OHNLPTKWebApplication;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.auth.oidc.OIDCUserRegistrationService;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
-import org.ohnlp.ohnlptk.entities.rulesets.RuleSetMatchRule;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
@@ -32,12 +28,13 @@ import java.util.stream.Collectors;
  * Note that tests here are done using direct java calls to relevant functions and not by doing the REST calls themselves.
  * We do testing via REST calls elsewhere during full-stack integration testing.
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = OHNLPTKWebApplication.class)
 @AutoConfigureMockMvc
 @TestPropertySource(
         locations = "classpath:application-test.properties")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RulesetControllerUnitTests {
     @Autowired
     private RulesetController rulesetController;
@@ -55,10 +52,12 @@ public class RulesetControllerUnitTests {
     private String otherUserTestRulesetId;
 
 
-    @Before
+    @BeforeAll
     public void init() {
         // Set up mock user for testing purposes
         this.oidcUserRegistrationService.loadUserLocal("test@ohnlp.org", "OHNLP Test User");
+        this.oidcUserRegistrationService.loadUserLocal("test2@ohnlp.org", "OHNLP Test User 2");
+
         this.mockUserAuth = new UsernamePasswordAuthenticationToken("test@ohnlp.org", null, Collections.emptyList());
         this.mockUserAuth2 = new UsernamePasswordAuthenticationToken("test2@ohnlp.org", null, Collections.emptyList());
     }

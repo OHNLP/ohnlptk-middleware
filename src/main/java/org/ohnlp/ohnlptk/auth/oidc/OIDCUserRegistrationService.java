@@ -47,19 +47,16 @@ public class OIDCUserRegistrationService extends OidcUserService {
         User user = this.userRepository.findByEmail(principal);
         if (user == null) {
             user = new User(name, principal);
+            user = this.userRepository.save(user);
             // Create default user-specific authority group with no admin and user as only member
             AuthorityGroup memberGroup = new AuthorityGroup();
             memberGroup.setName(principal.toLowerCase(Locale.ROOT));
-            memberGroup = this.authorityGroupRepository.save(memberGroup);
             AuthorityGroupMembership membership = new AuthorityGroupMembership();
             membership.setAdmin(false);
             membership.setGroup(memberGroup);
             membership.setPrincipal(user);
-            membership = this.authorityGroupMembershipRepository.save(membership);
             memberGroup.setMembers(Collections.singleton(membership));
             this.authorityGroupRepository.save(memberGroup);
-            user.setGroups(Collections.singletonList(membership));
         }
-        this.userRepository.save(user);
     }
 }

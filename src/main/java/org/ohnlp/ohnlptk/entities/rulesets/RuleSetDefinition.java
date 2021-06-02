@@ -1,5 +1,8 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 
 import javax.persistence.*;
@@ -15,24 +18,29 @@ public class RuleSetDefinition {
     private Long id;
 
     @Column
+    @NaturalId
     private String rulesetId;
 
     @Column
     private String name;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<RuleSetRegularExpression> regexps;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<RuleSetMatchRule> matchrules;
 
     @Column
     private String contexts;
 
-    @OneToMany
+    // Eager-load here because we will always be checking authorities on retrieval anyways
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<AuthorityGrant> grants;
 
     public Long getId() {
@@ -96,11 +104,11 @@ public class RuleSetDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RuleSetDefinition that = (RuleSetDefinition) o;
-        return Objects.equals(id, that.id) && Objects.equals(rulesetId, that.rulesetId) && Objects.equals(name, that.name) && Objects.equals(regexps, that.regexps) && Objects.equals(matchrules, that.matchrules) && Objects.equals(contexts, that.contexts) && Objects.equals(grants, that.grants);
+        return Objects.equals(id, that.id) && Objects.equals(rulesetId, that.rulesetId) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, rulesetId, name, regexps, matchrules, contexts, grants);
+        return Objects.hash(id, rulesetId, name);
     }
 }
