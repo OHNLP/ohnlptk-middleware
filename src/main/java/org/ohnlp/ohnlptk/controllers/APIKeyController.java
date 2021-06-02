@@ -2,7 +2,6 @@ package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
 import org.ohnlp.ohnlptk.entities.APIKey;
-import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.repositories.APIKeyRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.ohnlp.ohnlptk.auth.AuthUtils.getUserForSpringSecurityContextAuth;
+import static org.ohnlp.ohnlptk.auth.AuthAndAccessUtils.getUserForSpringSecurityContextAuth;
 
 /**
  * Handles API Key Management for CLI/Non-SAML/Non-OAuth Authentication

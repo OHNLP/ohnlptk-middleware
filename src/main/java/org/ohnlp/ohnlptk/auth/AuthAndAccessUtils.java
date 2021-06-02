@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 import java.util.stream.Collectors;
 
-public class AuthUtils {
+public class AuthAndAccessUtils {
 
     public static User getUserForSpringSecurityContextAuth(Authentication authentication, UserRepository repository) {
         String principal;

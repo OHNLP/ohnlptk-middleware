@@ -1,7 +1,7 @@
 package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
-import org.ohnlp.ohnlptk.auth.AuthUtils;
+import org.ohnlp.ohnlptk.auth.AuthAndAccessUtils;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import static org.ohnlp.ohnlptk.auth.AuthUtils.*;
+import static org.ohnlp.ohnlptk.auth.AuthAndAccessUtils.*;
 
 /**
  * Contains NLP ruleset management functions
@@ -54,7 +54,7 @@ public class RulesetController {
             return ResponseEntity.notFound().build();
         }
         // Filter grants to semantic has read perms, then get group members and check if user is contained within
-        if (AuthUtils.userCanReadRuleset(u, def)) {
+        if (AuthAndAccessUtils.userCanReadRuleset(u, def)) {
             return ResponseEntity.ok(def);
         } else {
             return ResponseEntity.notFound().build();
