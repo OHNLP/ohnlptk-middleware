@@ -37,8 +37,8 @@ public class OIDCUserRegistrationService extends OidcUserService {
     @Override
     public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
         OidcUser user = super.loadUser(userRequest);
-        String principal = user.getEmail();
-        String name = user.getName();
+        String principal = user.getAttribute("email");
+        String name = user.getAttribute("name");
         loadUserLocal(principal, name);
         return user;
     }
