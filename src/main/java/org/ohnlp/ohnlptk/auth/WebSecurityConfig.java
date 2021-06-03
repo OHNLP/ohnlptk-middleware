@@ -47,7 +47,8 @@ public class WebSecurityConfig {
         protected void configure(HttpSecurity http) throws Exception {
             http.cors()
                     .and()
-                    .antMatcher("/**").authorizeRequests().anyRequest().permitAll()
+                    .authorizeRequests()
+                    .anyRequest().permitAll()
                     .and()
                     .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
                     .addFilterAfter(this.apiKeyAuthorizationFilter, BasicAuthenticationFilter.class);
@@ -72,6 +73,7 @@ public class WebSecurityConfig {
             http.cors()
                     .and()
                     .authorizeRequests()
+                    .antMatchers("/v2/api-docs").permitAll()
                     .anyRequest().authenticated()
                     .and()
                     .oauth2Login().userInfoEndpoint().oidcUserService(this.oidcUserRegistrationService);

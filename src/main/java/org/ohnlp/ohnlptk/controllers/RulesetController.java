@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +42,7 @@ public class RulesetController {
     @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
             "manage access")
     @PostMapping("/newRuleset")
-    public ResponseEntity<RuleSetDefinition> createRuleset(Authentication auth, @RequestParam("name") String rulesetName) {
+    public ResponseEntity<RuleSetDefinition> createRuleset(@ApiIgnore Authentication auth, @RequestParam("name") String rulesetName) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         // Create new ruleset itself
         RuleSetDefinition def = new RuleSetDefinition();
@@ -62,14 +63,14 @@ public class RulesetController {
 
     @ApiOperation("Retrieves a list of ruleset definitions for which the authenticated user has read access")
     @GetMapping("/getAllForUser")
-    public List<RuleSetDefinition> getRulesets(Authentication auth) {
+    public List<RuleSetDefinition> getRulesets(@ApiIgnore Authentication auth) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         return this.ruleSetRepository.getRulesetsForUser(u);
     }
 
     @ApiOperation("Retrieves, if user has read permissions to it, the ruleset corresponding to ruleset_id")
     @GetMapping("/getForID")
-    public ResponseEntity<RuleSetDefinition> getRulesetForID(Authentication auth, @RequestParam("ruleset_id") String rulesetID) {
+    public ResponseEntity<RuleSetDefinition> getRulesetForID(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetID) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition def = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetID);
         if (def == null) {
@@ -85,7 +86,7 @@ public class RulesetController {
 
     @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist")
     @PostMapping("/updateRuleset")
-    public ResponseEntity<RuleSetDefinition> updateRuleset(Authentication auth, @RequestBody RuleSetDefinition def) {
+    public ResponseEntity<RuleSetDefinition> updateRuleset(@ApiIgnore Authentication auth, @RequestBody RuleSetDefinition def) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
         if (localDef == null) {
@@ -102,7 +103,7 @@ public class RulesetController {
     @ApiOperation("Deletes, if user has manage permissions to it, the ruleset associated with the passed ruleset ID. " +
             "Returns the list of the authenticating user's projects")
     @DeleteMapping("/deleteRuleset")
-    public List<RuleSetDefinition> deleteRuleset(Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
+    public List<RuleSetDefinition> deleteRuleset(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetId);
         if (localDef != null) {

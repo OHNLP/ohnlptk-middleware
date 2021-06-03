@@ -39,6 +39,15 @@ public class APIKeyAuthorizationFilter extends GenericFilterBean {
             throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response = (HttpServletResponse) res;
+        if (request.getHeader("Authorization") == null) {
+            if (!((HttpServletRequest) req).getRequestURI().equals("/v2/api-docs")) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED");
+                return;
+            } else {
+                chain.doFilter(req, res);
+                return;
+            }
+        }
         String authHeader = new String(Base64.getDecoder().decode(request.getHeader("Authorization")), StandardCharsets.UTF_8);
         String[] parsedAuth = authHeader.split(":");
         String email = parsedAuth[0];

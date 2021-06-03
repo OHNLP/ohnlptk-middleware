@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -38,7 +39,7 @@ public class APIKeyController {
 
     @ApiOperation("Gets a mapping of name -> API Keys for the authenticated user")
     @GetMapping("/api_keys")
-    public Map<String, APIKey> getApiKeys(Authentication authentication) {
+    public Map<String, APIKey> getApiKeys(@ApiIgnore Authentication authentication) {
         Map<String, APIKey> ret = new HashMap<>();
         this.apiKeyRepository.findAPIKeysByUser(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication))
                 .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
@@ -48,7 +49,7 @@ public class APIKeyController {
     @ApiOperation("Creates an API key with the given name for the authenticated user, " +
             "returns the API key if it already exists")
     @PostMapping("/create_api_key")
-    public APIKey create(Authentication authentication, @RequestParam("name") String name) {
+    public APIKey create(@ApiIgnore Authentication authentication, @RequestParam("name") String name) {
         Map<String, APIKey> apiKeys = getApiKeys(authentication);
         if (apiKeys.containsKey(name)) {
             return apiKeys.get(name);
@@ -64,7 +65,7 @@ public class APIKeyController {
 
     @ApiOperation("Deletes the API Key with the given uid value, returns the current mapping of existing api keys")
     @DeleteMapping("/delete_key")
-    public ResponseEntity<Map<String, APIKey>> delete(Authentication authentication, @RequestParam("token") String token) {
+    public ResponseEntity<Map<String, APIKey>> delete(@ApiIgnore Authentication authentication, @RequestParam("token") String token) {
         APIKey key = this.apiKeyRepository.findAPIKeyByToken(token);
         if (key == null || !key.getUser().getEmail().equalsIgnoreCase(authentication.getPrincipal().toString())) {
             return ResponseEntity.notFound().build();
