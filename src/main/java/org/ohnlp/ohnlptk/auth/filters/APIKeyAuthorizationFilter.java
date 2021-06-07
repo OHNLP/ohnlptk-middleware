@@ -40,6 +40,7 @@ public class APIKeyAuthorizationFilter extends GenericFilterBean {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response = (HttpServletResponse) res;
         if (request.getHeader("Authorization") == null) {
+            chain.doFilter(req, res);
             return; //
         }
         String authHeader = new String(Base64.getDecoder().decode(request.getHeader("Authorization")), StandardCharsets.UTF_8);
