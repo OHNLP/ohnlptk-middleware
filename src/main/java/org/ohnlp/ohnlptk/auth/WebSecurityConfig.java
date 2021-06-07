@@ -50,7 +50,6 @@ public class WebSecurityConfig {
                     .authorizeRequests()
                     .anyRequest().permitAll()
                     .and()
-                    .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
                     .addFilterAfter(this.apiKeyAuthorizationFilter, BasicAuthenticationFilter.class);
         }
 
@@ -73,7 +72,7 @@ public class WebSecurityConfig {
             http.cors()
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/v2/api-docs").permitAll()
+                    .antMatchers("/v2/api-docs", "/oauth2/registration/**", "/login", "/login/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
                     .oauth2Login().userInfoEndpoint().oidcUserService(this.oidcUserRegistrationService);

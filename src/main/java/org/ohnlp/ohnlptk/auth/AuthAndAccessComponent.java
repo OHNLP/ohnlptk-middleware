@@ -7,7 +7,9 @@ import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.util.stream.Collectors;
@@ -21,8 +23,11 @@ public class AuthAndAccessComponent {
     }
 
     public User getUserForSpringSecurityContextAuth(Authentication authentication) {
+
         String principal;
-        if (authentication.getPrincipal() instanceof OidcUser) {
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            principal = ((OAuth2User)authentication.getPrincipal()).getAttribute("email");
+        } else if (authentication.getPrincipal() instanceof OidcUser) {
             principal = ((OidcUser)authentication.getPrincipal()).getEmail();
         } else {
             principal = authentication.getName();
