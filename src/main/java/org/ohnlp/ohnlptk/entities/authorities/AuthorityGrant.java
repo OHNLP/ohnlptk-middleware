@@ -1,6 +1,6 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
-import org.ohnlp.ohnlptk.entities.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 
 import javax.persistence.*;
@@ -16,6 +16,7 @@ public class AuthorityGrant {
 
     @ManyToOne
     @JoinColumn
+    @JsonIgnore
     private RuleSetDefinition ruleset;
 
     @ManyToOne

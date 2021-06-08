@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.ohnlp.ohnlptk.entities.User;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ public class AuthorityGroupMembership {
 
     @ManyToOne
     @JoinColumn
+    @JsonIgnore
     private User principal;
 
     @ManyToOne

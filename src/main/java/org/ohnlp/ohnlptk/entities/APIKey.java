@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -16,6 +17,7 @@ public class APIKey {
     @ManyToOne
     @JoinColumn
     @NaturalId
+    @JsonIgnore
     private User user;
 
     @Column

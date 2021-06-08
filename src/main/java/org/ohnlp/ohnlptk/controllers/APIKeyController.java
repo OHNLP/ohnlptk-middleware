@@ -39,7 +39,7 @@ public class APIKeyController {
 
     @ApiOperation("Gets a mapping of name -> API Keys for the authenticated user")
     @GetMapping("/api_keys")
-    public Map<String, APIKey> getApiKeys(@ApiIgnore Authentication authentication) {
+    public @ResponseBody Map<String, APIKey> getApiKeys(@ApiIgnore Authentication authentication) {
         Map<String, APIKey> ret = new HashMap<>();
         this.apiKeyRepository.findAPIKeysByUser(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication))
                 .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
@@ -49,7 +49,7 @@ public class APIKeyController {
     @ApiOperation("Creates an API key with the given name for the authenticated user, " +
             "returns the API key if it already exists")
     @PostMapping("/create_api_key")
-    public APIKey create(@ApiIgnore Authentication authentication, @RequestParam("name") String name) {
+    public @ResponseBody APIKey create(@ApiIgnore Authentication authentication, @RequestParam("name") String name) {
         Map<String, APIKey> apiKeys = getApiKeys(authentication);
         if (apiKeys.containsKey(name)) {
             return apiKeys.get(name);

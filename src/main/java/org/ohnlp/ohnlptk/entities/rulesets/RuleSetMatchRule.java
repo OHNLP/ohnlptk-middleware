@@ -1,5 +1,7 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -25,6 +27,7 @@ public class RuleSetMatchRule {
 
     @ManyToOne
     @JoinColumn
+    @JsonIgnore
     private RuleSetDefinition definition;
 
     public Long getId() {

@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NaturalId;
@@ -28,6 +29,7 @@ public class AuthorityGroup {
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     private Collection<AuthorityGroupMembership> members;
 
     public Long getId() {

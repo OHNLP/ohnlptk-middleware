@@ -63,7 +63,7 @@ public class RulesetController {
 
     @ApiOperation("Retrieves a list of ruleset definitions for which the authenticated user has read access")
     @GetMapping("/getAllForUser")
-    public List<RuleSetDefinition> getRulesets(@ApiIgnore Authentication auth) {
+    public @ResponseBody List<RuleSetDefinition> getRulesets(@ApiIgnore Authentication auth) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         return this.ruleSetRepository.getRulesetsForUser(u);
     }
@@ -103,7 +103,7 @@ public class RulesetController {
     @ApiOperation("Deletes, if user has manage permissions to it, the ruleset associated with the passed ruleset ID. " +
             "Returns the list of the authenticating user's projects")
     @DeleteMapping("/deleteRuleset")
-    public List<RuleSetDefinition> deleteRuleset(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
+    public  @ResponseBody List<RuleSetDefinition> deleteRuleset(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetId) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetId);
         if (localDef != null) {
