@@ -1,7 +1,7 @@
 package org.ohnlp.ohnlptk.auth;
 
 import org.ohnlp.ohnlptk.auth.filters.APIKeyAuthorizationFilter;
-import org.ohnlp.ohnlptk.auth.oidc.OIDCUserRegistrationService;
+import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -48,8 +48,10 @@ public class WebSecurityConfig {
             http.cors()
                     .and()
                     .authorizeRequests()
-                    .anyRequest().permitAll()
+                    .anyRequest()
+                    .authenticated()
                     .and()
+                    .requestMatcher(new RequestHeaderRequestMatcher("Authorization"))
                     .addFilterAfter(this.apiKeyAuthorizationFilter, BasicAuthenticationFilter.class);
         }
 
@@ -61,21 +63,22 @@ public class WebSecurityConfig {
     @Configuration
     public static class OauthSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        private final OIDCUserRegistrationService oidcUserRegistrationService;
+        private final OAuth2UserService oauthUserService;
 
-        public OauthSecurityConfig(OIDCUserRegistrationService oidcUserRegistrationService) {
-            this.oidcUserRegistrationService = oidcUserRegistrationService;
+        public OauthSecurityConfig(OAuth2UserService oauthUserService) {
+            this.oauthUserService = oauthUserService;
         }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.cors()
                     .and()
+                    .csrf().disable()
                     .authorizeRequests()
                     .antMatchers("/v2/api-docs", "/oauth2/registration/**", "/login", "/login/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
-                    .oauth2Login().userInfoEndpoint().oidcUserService(this.oidcUserRegistrationService);
+                    .oauth2Login().userInfoEndpoint().userService(this.oauthUserService);
         }
 
     }

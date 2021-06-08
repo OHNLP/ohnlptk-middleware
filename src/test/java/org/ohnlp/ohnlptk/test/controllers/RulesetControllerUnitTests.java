@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.OHNLPTKWebApplication;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
-import org.ohnlp.ohnlptk.auth.oidc.OIDCUserRegistrationService;
+import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserService;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
@@ -17,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -40,7 +39,7 @@ public class RulesetControllerUnitTests {
     private RulesetController rulesetController;
 
     @Autowired
-    private OIDCUserRegistrationService oidcUserRegistrationService;
+    private OAuth2UserService oidcUserRegistrationService;
 
     @Autowired
     private AuthAndAccessComponent authAndAccessComponent;

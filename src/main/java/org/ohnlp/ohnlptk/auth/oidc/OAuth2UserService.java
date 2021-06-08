@@ -9,8 +9,11 @@ import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -20,23 +23,23 @@ import java.util.Locale;
  * Registers users created via OIDC requests to the local user repository
  */
 @Service
-public class OIDCUserRegistrationService extends OidcUserService {
+public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
     private final AuthorityGroupRepository authorityGroupRepository;
     private final AuthorityGroupMembershipRepository authorityGroupMembershipRepository;
 
     @Autowired
-    public OIDCUserRegistrationService(UserRepository userRepository, AuthorityGroupRepository authorityGroupRepository,
-                                       AuthorityGroupMembershipRepository authorityGroupMembershipRepository) {
+    public OAuth2UserService(UserRepository userRepository, AuthorityGroupRepository authorityGroupRepository,
+                             AuthorityGroupMembershipRepository authorityGroupMembershipRepository) {
         this.userRepository = userRepository;
         this.authorityGroupRepository = authorityGroupRepository;
         this.authorityGroupMembershipRepository = authorityGroupMembershipRepository;
     }
 
     @Override
-    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-        OidcUser user = super.loadUser(userRequest);
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2User user = super.loadUser(userRequest);
         String principal = user.getAttribute("email");
         String name = user.getAttribute("name");
         loadUserLocal(principal, name);

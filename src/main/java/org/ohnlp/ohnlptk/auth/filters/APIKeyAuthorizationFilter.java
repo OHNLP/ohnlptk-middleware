@@ -23,7 +23,7 @@ import java.util.Base64;
 import java.util.Collections;
 
 /**
- * This filter checks against user pricipal/api-key database to verify access
+ * This filter checks against user principal/api-key database to verify access
  */
 @Component
 public class APIKeyAuthorizationFilter extends GenericFilterBean {
@@ -39,7 +39,7 @@ public class APIKeyAuthorizationFilter extends GenericFilterBean {
             throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response = (HttpServletResponse) res;
-        if (request.getHeader("Authorization") == null) {
+        if (request.getHeader("Authorization").startsWith("Bearer")) {
             chain.doFilter(req, res);
             return; //
         }
