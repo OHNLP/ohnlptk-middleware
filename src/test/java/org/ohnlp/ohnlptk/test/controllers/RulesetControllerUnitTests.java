@@ -5,7 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.OHNLPTKWebApplication;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
-import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserService;
+import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserRegistrationService;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
@@ -39,7 +39,7 @@ public class RulesetControllerUnitTests {
     private RulesetController rulesetController;
 
     @Autowired
-    private OAuth2UserService oidcUserRegistrationService;
+    private OAuth2UserRegistrationService oidcUserRegistrationService;
 
     @Autowired
     private AuthAndAccessComponent authAndAccessComponent;
@@ -54,8 +54,8 @@ public class RulesetControllerUnitTests {
     @BeforeAll
     public void init() {
         // Set up mock user for testing purposes
-        this.oidcUserRegistrationService.loadUserLocal("test@ohnlp.org", "OHNLP Test User");
-        this.oidcUserRegistrationService.loadUserLocal("test2@ohnlp.org", "OHNLP Test User 2");
+        this.oidcUserRegistrationService.loadUserLocal("test@ohnlp.org", "OHNLP Test User", null);
+        this.oidcUserRegistrationService.loadUserLocal("test2@ohnlp.org", "OHNLP Test User 2", null);
 
         this.mockUserAuth = new UsernamePasswordAuthenticationToken("test@ohnlp.org", null, Collections.emptyList());
         this.mockUserAuth2 = new UsernamePasswordAuthenticationToken("test2@ohnlp.org", null, Collections.emptyList());

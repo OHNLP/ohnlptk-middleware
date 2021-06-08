@@ -1,7 +1,8 @@
 package org.ohnlp.ohnlptk.auth;
 
 import org.ohnlp.ohnlptk.auth.filters.APIKeyAuthorizationFilter;
-import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserService;
+import org.ohnlp.ohnlptk.auth.oidc.OAuth2UserRegistrationService;
+import org.ohnlp.ohnlptk.auth.oidc.OIDCUserRegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -63,10 +64,12 @@ public class WebSecurityConfig {
     @Configuration
     public static class OauthSecurityConfig extends WebSecurityConfigurerAdapter {
 
-        private final OAuth2UserService oauthUserService;
+        private final OAuth2UserRegistrationService oauthUserService;
+        private final OIDCUserRegistrationService oidcUserRegistrationService;
 
-        public OauthSecurityConfig(OAuth2UserService oauthUserService) {
+        public OauthSecurityConfig(OAuth2UserRegistrationService oauthUserService, OIDCUserRegistrationService oidcUserRegistrationService) {
             this.oauthUserService = oauthUserService;
+            this.oidcUserRegistrationService = oidcUserRegistrationService;
         }
 
         @Override
@@ -78,7 +81,7 @@ public class WebSecurityConfig {
                     .antMatchers("/v2/api-docs", "/oauth2/registration/**", "/login", "/login/**").permitAll()
                     .anyRequest().authenticated()
                     .and()
-                    .oauth2Login().userInfoEndpoint().userService(this.oauthUserService);
+                    .oauth2Login().userInfoEndpoint().userService(this.oauthUserService).oidcUserService(this.oidcUserRegistrationService);
         }
 
     }

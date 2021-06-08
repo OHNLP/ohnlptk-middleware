@@ -9,11 +9,8 @@ import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,33 +20,35 @@ import java.util.Locale;
  * Registers users created via OIDC requests to the local user repository
  */
 @Service
-public class OAuth2UserService extends DefaultOAuth2UserService {
+public class OIDCUserRegistrationService extends OidcUserService {
 
     private final UserRepository userRepository;
     private final AuthorityGroupRepository authorityGroupRepository;
     private final AuthorityGroupMembershipRepository authorityGroupMembershipRepository;
 
     @Autowired
-    public OAuth2UserService(UserRepository userRepository, AuthorityGroupRepository authorityGroupRepository,
-                             AuthorityGroupMembershipRepository authorityGroupMembershipRepository) {
+    public OIDCUserRegistrationService(UserRepository userRepository, AuthorityGroupRepository authorityGroupRepository,
+                                       AuthorityGroupMembershipRepository authorityGroupMembershipRepository) {
         this.userRepository = userRepository;
         this.authorityGroupRepository = authorityGroupRepository;
         this.authorityGroupMembershipRepository = authorityGroupMembershipRepository;
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User user = super.loadUser(userRequest);
+    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+        OidcUser user = super.loadUser(userRequest);
         String principal = user.getAttribute("email");
         String name = user.getAttribute("name");
-        loadUserLocal(principal, name);
+        String picture = user.getAttribute("picture");
+        loadUserLocal(principal, name, picture);
         return user;
     }
 
-    public void loadUserLocal(String principal, String name) {
+    public void loadUserLocal(String principal, String name, String picture) {
         User user = this.userRepository.findByEmail(principal);
         if (user == null) {
             user = new User(name, principal);
+            user.setImageUrl(picture);
             user = this.userRepository.save(user);
             // Create default user-specific authority group with no admin and user as only member
             AuthorityGroup memberGroup = new AuthorityGroup();
