@@ -1,9 +1,8 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 
 import javax.persistence.*;
@@ -11,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "AUTHORITY_GRANTS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class AuthorityGrant {
     @Id
     @Column
@@ -20,12 +19,10 @@ public class AuthorityGrant {
 
     @ManyToOne
     @JoinColumn
-    @JsonBackReference
     private RuleSetDefinition ruleset;
 
     @ManyToOne
     @JoinColumn
-    @JsonBackReference
     private AuthorityGroup principal;
 
     @Column

@@ -1,12 +1,12 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "RULESET_DEFS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class RuleSetDefinition {
     @Id
     @Column
@@ -31,13 +31,11 @@ public class RuleSetDefinition {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonManagedReference
     private Collection<RuleSetRegularExpression> regexps;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonManagedReference
     private Collection<RuleSetMatchRule> matchrules;
 
     @Column
@@ -47,7 +45,6 @@ public class RuleSetDefinition {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonManagedReference
     private Collection<AuthorityGrant> grants;
 
     public Long getId() {

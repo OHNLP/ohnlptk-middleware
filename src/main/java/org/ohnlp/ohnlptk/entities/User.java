@@ -8,15 +8,19 @@ import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
+/**
+ * Represents a User as stored in the backing databse
+ */
 @Entity
 @Table(name = "USERS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class User {
     @Id
     @Column
@@ -36,13 +40,11 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonManagedReference
     private Collection<APIKey> apiKeys;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonManagedReference
     private Collection<AuthorityGroupMembership> groups;
 
     protected User() {}

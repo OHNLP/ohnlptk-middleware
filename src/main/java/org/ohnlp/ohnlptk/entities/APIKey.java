@@ -1,16 +1,19 @@
 package org.ohnlp.ohnlptk.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NaturalId;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
 import java.util.Objects;
 
+/**
+ * Represents an API Key Associated with a Specific User
+ */
 @Entity
 @Table(name = "API_KEYS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class APIKey {
     @Id
     @Column
@@ -20,7 +23,6 @@ public class APIKey {
     @ManyToOne
     @JoinColumn
     @NaturalId
-    @JsonBackReference
     private User user;
 
     @Column

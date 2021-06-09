@@ -1,17 +1,15 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "RULESET_REGEXPS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class RuleSetRegularExpression {
     @Id
     @Column
@@ -26,7 +24,6 @@ public class RuleSetRegularExpression {
 
     @ManyToOne
     @JoinColumn
-    @JsonBackReference
     private RuleSetDefinition definition;
 
     public Long getId() {

@@ -1,17 +1,16 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.ohnlp.ohnlptk.entities.User;
+import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "AUTHORITY_GROUP_MEMBERSHIPS")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class AuthorityGroupMembership {
     @Id
     @Column
@@ -20,12 +19,10 @@ public class AuthorityGroupMembership {
 
     @ManyToOne
     @JoinColumn
-    @JsonBackReference
     private User principal;
 
     @ManyToOne
     @JoinColumn
-    @JsonBackReference
     private AuthorityGroup group;
 
     @Column
