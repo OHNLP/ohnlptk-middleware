@@ -25,25 +25,12 @@ import java.util.UUID;
 @RequestMapping("/_apiauth")
 public class APIKeyController {
     private final APIKeyRepository apiKeyRepository;
-    private final UserRepository userRepository;
     private final AuthAndAccessComponent authAndAccessComponent;
 
     @Autowired
-    public APIKeyController(APIKeyRepository apiKeyRepository, UserRepository userRepository,
-                            AuthAndAccessComponent authAndAccessComponent) {
+    public APIKeyController(APIKeyRepository apiKeyRepository, AuthAndAccessComponent authAndAccessComponent) {
         this.apiKeyRepository = apiKeyRepository;
-        this.userRepository = userRepository;
         this.authAndAccessComponent = authAndAccessComponent;
-    }
-
-
-    @ApiOperation("Gets a mapping of name -> API Keys for the authenticated user")
-    @GetMapping("/api_keys")
-    public @ResponseBody Map<String, APIKey> getApiKeys(@ApiIgnore Authentication authentication) {
-        Map<String, APIKey> ret = new HashMap<>();
-        this.apiKeyRepository.findAPIKeysByUser(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication))
-                .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
-        return ret;
     }
 
     @ApiOperation("Creates an API key with the given name for the authenticated user, " +
@@ -62,6 +49,16 @@ public class APIKeyController {
             return newKey;
         }
     }
+
+    @ApiOperation("Gets a mapping of name -> API Keys for the authenticated user")
+    @GetMapping("/api_keys")
+    public @ResponseBody Map<String, APIKey> getApiKeys(@ApiIgnore Authentication authentication) {
+        Map<String, APIKey> ret = new HashMap<>();
+        this.apiKeyRepository.findAPIKeysByUser(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(authentication))
+                .forEach(apiKey -> ret.put(apiKey.getName(), apiKey));
+        return ret;
+    }
+
 
     @ApiOperation("Deletes the API Key with the given uid value, returns the current mapping of existing api keys")
     @DeleteMapping("/delete_key")
