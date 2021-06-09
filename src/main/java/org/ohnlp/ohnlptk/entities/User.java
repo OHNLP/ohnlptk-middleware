@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 /**
- * Represents a User as stored in the backing databse
+ * Represents a User as stored in the backing database
  */
 @Entity
 @Table(name = "USERS")

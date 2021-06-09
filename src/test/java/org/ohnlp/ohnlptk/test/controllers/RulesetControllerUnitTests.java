@@ -1,5 +1,7 @@
 package org.ohnlp.ohnlptk.test.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
@@ -60,38 +62,13 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     }
 
     /**
-     * Tests the /getAllForUser REST endpoint
-     *
-     * Verifies that authenticated ruleset retrieval returns 6 items (1 created in {@link #newRulesetTest()},
-     * 5 from {@link #rulesetRepositorySetup()} and checks that the user has read access to all of the returned results
-     */
-    @Test
-    @Order(3)
-    public void getAllForUserTest() {
-        List<RuleSetDefinition> defs = this.rulesetController.getRulesets(this.mockUserAuth);
-        Assert.isTrue( defs.size() == 6, "Expected 6 returned rulesets, got " + defs.size());
-        Assert.isTrue(
-                defs.stream().map(RuleSetDefinition::getRulesetId).collect(Collectors.toSet()).contains(this.testRulesetId),
-                "Created ruleset is not in the returned ruleset list");
-        // Ensure user actually has read perms to all retrieved rulesets
-        for (RuleSetDefinition definition : defs) {
-            Assert.isTrue(
-                    this.authAndAccessComponent.userCanReadRuleset(
-                            this.authAndAccessComponent.getUserForSpringSecurityContextAuth(this.mockUserAuth),
-                            definition),
-                    "A ruleset for which the user does not have read access was returned! Rulesets: "
-                            + Arrays.toString(defs.toArray()));
-        }
-    }
-
-    /**
      * Tests the /getForID REST endpoint
      *
      * Verifies that the retrieved ruleset is the Test Ruleset previously created during {@link #newRulesetTest()}
      * Also verifies no result returned if user does not have rights to the ruleset in question
      */
     @Test
-    @Order(4)
+    @Order(3)
     public void getForIDTest() {
         // Check for created ruleset with correct user
         RuleSetDefinition def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
@@ -118,6 +95,33 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
                 "An error code other than 404 not found returned for non-existing ruleset");
     }
 
+
+    /**
+     * Tests the /getAllForUser REST endpoint
+     *
+     * Verifies that authenticated ruleset retrieval returns 6 items (1 created in {@link #newRulesetTest()},
+     * 5 from {@link #rulesetRepositorySetup()} and checks that the user has read access to all of the returned results
+     */
+    @Test
+    @Order(4)
+    public void getAllForUserTest() throws JsonProcessingException {
+        Map<String, String> defs = this.rulesetController.getRulesets(this.mockUserAuth);
+        Assert.isTrue( defs.size() == 6, "Expected 6 returned rulesets, got " + defs.size());
+        Assert.isTrue(
+                defs.containsValue(this.testRulesetId),
+                "Created ruleset is not in the returned ruleset list");
+        // Ensure user actually has read perms to all retrieved rulesets
+        for (String rulesetID : defs.values()) {
+            RuleSetDefinition definition = this.rulesetController.getRulesetForID(this.mockUserAuth, rulesetID).getBody();
+            Assert.isTrue(
+                    this.authAndAccessComponent.userCanReadRuleset(
+                            this.authAndAccessComponent.getUserForSpringSecurityContextAuth(this.mockUserAuth),
+                            definition),
+                    "A ruleset for which the user does not have read access was returned!"
+                            + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(definition));
+        }
+    }
+
     /**
      * Tests the /updateRuleset REST endpoint
      *
@@ -142,7 +146,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
         def = this.rulesetController.updateRuleset(this.mockUserAuth, def).getBody();
         Assert.notNull(def, "Returned RulesetDefinition after Update is Null");
         Assert.isTrue(!def.getRegexps().isEmpty(), "Returned Regular Expressions are Empty after Update");
-        List<RuleSetDefinition> defs = this.rulesetController.getRulesets(this.mockUserAuth);
+        Map<String, String> defs = this.rulesetController.getRulesets(this.mockUserAuth);
         Assert.isTrue( defs.size() == 6, "Expected 6 returned rulesets, got " + defs.size() + ", " +
                 "merge did not occur correctly!");
 
@@ -172,7 +176,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     @Order(6)
     public void deleteRulesetTest() {
         // Delete mockUserAuth2's ruleset and verify
-        List<RuleSetDefinition> defs = this.rulesetController.deleteRuleset(this.mockUserAuth2, this.otherUserTestRulesetId);
+        Map<String, String> defs = this.rulesetController.deleteRuleset(this.mockUserAuth2, this.otherUserTestRulesetId);
         Assert.isTrue( defs.size() == 0, "Expected 0 returned rulesets, got " + defs.size() + ", " +
                 "delete did not occur correctly!");
 

@@ -1,6 +1,7 @@
 package org.ohnlp.ohnlptk.controllers;
 
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
+import org.ohnlp.ohnlptk.dto.user.UserDTO;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class UserInfoController {
     }
 
     @RequestMapping("/details")
-    public @ResponseBody User userDetails(@ApiIgnore Authentication auth) {
-        return this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
+    public @ResponseBody UserDTO userDetails(@ApiIgnore Authentication auth) {
+        return new UserDTO().generateFromEntity(this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth));
     }
 }

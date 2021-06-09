@@ -21,8 +21,11 @@ public class AuthorityGroup {
     private Long id;
 
     @Column
-    @NaturalId
     private String name;
+
+    @Column
+    @NaturalId
+    private String groupUid;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
@@ -73,16 +76,24 @@ public class AuthorityGroup {
         this.members = members;
     }
 
+    public String getGroupUid() {
+        return groupUid;
+    }
+
+    public void setGroupUid(String groupUid) {
+        this.groupUid = groupUid;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuthorityGroup that = (AuthorityGroup) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name);
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(groupUid, that.groupUid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id, name, groupUid);
     }
 }
