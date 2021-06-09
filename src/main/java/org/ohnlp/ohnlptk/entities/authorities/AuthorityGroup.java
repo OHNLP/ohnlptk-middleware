@@ -16,7 +16,7 @@ import java.util.Objects;
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class AuthorityGroup {
     @Id
-    @Column
+    @Column(name="GROUP_ID")
     @GeneratedValue
     private Long id;
 
@@ -29,7 +29,15 @@ public class AuthorityGroup {
     private Collection<AuthorityGrant> grants;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JoinColumn
+    @JoinTable(
+            name = "AUTHORITY_GROUP_MEMBERSHIPS",
+            joinColumns = {
+                    @JoinColumn(name = "GROUP_ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "MEMBERSHIP_DEF_ID")
+            }
+    )
     @LazyCollection(LazyCollectionOption.FALSE)
     private Collection<AuthorityGroupMembership> members;
 

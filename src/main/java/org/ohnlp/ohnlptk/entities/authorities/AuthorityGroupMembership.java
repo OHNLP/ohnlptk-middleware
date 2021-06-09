@@ -9,11 +9,11 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "AUTHORITY_GROUP_MEMBERSHIPS")
+@Table(name = "AUTHORITY_GROUP_MEMBERSHIP_DEFINITIONS")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = JPAEntityResolver.class)
 public class AuthorityGroupMembership {
     @Id
-    @Column
+    @Column(name = "MEMBERSHIP_DEF_ID")
     @GeneratedValue
     private Long id;
 

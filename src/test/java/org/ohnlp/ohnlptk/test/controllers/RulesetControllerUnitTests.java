@@ -138,7 +138,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
         RuleSetRegularExpression regex = Mockito.mock(RuleSetRegularExpression.class);
         Mockito.when(regex.getName()).thenReturn("TESTREGEXLIST");
         Mockito.when(regex.getText()).thenReturn("Test Regex 1\nTest Regex 2\r\nTest Regex 3");
-        Objects.requireNonNull(def).setRegexps(Collections.singletonList(regex));
+        Objects.requireNonNull(def).setRegexps(new ArrayList<>(Collections.singletonList(regex)));
         def = this.rulesetController.updateRuleset(this.mockUserAuth, def).getBody();
         Assert.notNull(def, "Returned RulesetDefinition after Update is Null");
         Assert.isTrue(!def.getRegexps().isEmpty(), "Returned Regular Expressions are Empty after Update");
@@ -171,15 +171,16 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     @Test
     @Order(6)
     public void deleteRulesetTest() {
-        // Delete mockUserAuth's ruleset and verify
-        List<RuleSetDefinition> defs = this.rulesetController.deleteRuleset(this.mockUserAuth, this.testRulesetId);
-        Assert.isTrue( defs.size() == 5, "Expected 5 returned rulesets, got " + defs.size() + ", " +
+        // Delete mockUserAuth2's ruleset and verify
+        List<RuleSetDefinition> defs = this.rulesetController.deleteRuleset(this.mockUserAuth2, this.otherUserTestRulesetId);
+        Assert.isTrue( defs.size() == 0, "Expected 0 returned rulesets, got " + defs.size() + ", " +
                 "delete did not occur correctly!");
 
-        // Now delete mockUserAuth2's ruleset using mockUserAuth and verify no delete occurred
-        this.rulesetController.deleteRuleset(this.mockUserAuth, this.otherUserTestRulesetId);
-        Assert.isTrue(this.rulesetController.getRulesets(this.mockUserAuth2).size() > 0,
-                "Expected >0 returned rulesets, got 0, delete occurred despite no permissions");
+        // Now delete mockUserAuth's ruleset using mockUserAuth2 and verify no delete occurred
+        this.rulesetController.deleteRuleset(this.mockUserAuth2, this.testRulesetId);
+        int size = this.rulesetController.getRulesets(this.mockUserAuth).size();
+        Assert.isTrue(size == 6,
+                "Expected 6 returned rulesets, got " + size + ", delete occurred despite no permissions");
     }
 
 }

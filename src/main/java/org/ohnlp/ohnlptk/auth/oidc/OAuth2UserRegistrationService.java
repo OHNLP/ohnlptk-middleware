@@ -55,13 +55,16 @@ public class OAuth2UserRegistrationService extends DefaultOAuth2UserService {
             user = this.userRepository.save(user);
             // Create default user-specific authority group with no admin and user as only member
             AuthorityGroup memberGroup = new AuthorityGroup();
-            memberGroup.setName(principal.toLowerCase(Locale.ROOT));
+            memberGroup.setName("user:" + principal.toLowerCase(Locale.ROOT));
             AuthorityGroupMembership membership = new AuthorityGroupMembership();
             membership.setAdmin(false);
             membership.setGroup(memberGroup);
             membership.setPrincipal(user);
             memberGroup.setMembers(Collections.singleton(membership));
             this.authorityGroupRepository.save(memberGroup);
+            // Now add the reverse relationship - i.e. save membership to user
+            user.setGroups(Collections.singleton(membership));
+            user = this.userRepository.save(user);
         }
     }
 }

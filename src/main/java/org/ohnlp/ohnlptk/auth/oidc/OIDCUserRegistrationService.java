@@ -52,7 +52,7 @@ public class OIDCUserRegistrationService extends OidcUserService {
             user = this.userRepository.save(user);
             // Create default user-specific authority group with no admin and user as only member
             AuthorityGroup memberGroup = new AuthorityGroup();
-            memberGroup.setName(principal.toLowerCase(Locale.ROOT));
+            memberGroup.setName("user:" + principal.toLowerCase(Locale.ROOT));
             AuthorityGroupMembership membership = new AuthorityGroupMembership();
             membership.setAdmin(false);
             membership.setGroup(memberGroup);

@@ -5,6 +5,7 @@ import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
+import org.ohnlp.ohnlptk.repositories.AuthorityGrantRepository;
 import org.ohnlp.ohnlptk.repositories.AuthorityGroupRepository;
 import org.ohnlp.ohnlptk.repositories.RuleSetRepository;
 import org.ohnlp.ohnlptk.repositories.UserRepository;
@@ -14,10 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -30,13 +28,17 @@ public class RulesetController {
     private final UserRepository userRepository;
     private final AuthorityGroupRepository authorityGroupRepository;
     private final AuthAndAccessComponent authAndAccessComponent;
+    private final AuthorityGrantRepository authorityGrantRepository;
+
 
     public RulesetController(RuleSetRepository ruleSetRepository, UserRepository userRepository,
-                             AuthorityGroupRepository authorityGroupRepository, AuthAndAccessComponent authAndAccessComponent) {
+                             AuthorityGroupRepository authorityGroupRepository, AuthAndAccessComponent authAndAccessComponent,
+                             AuthorityGrantRepository authorityGrantRepository) {
         this.ruleSetRepository = ruleSetRepository;
         this.userRepository = userRepository;
         this.authorityGroupRepository = authorityGroupRepository;
         this.authAndAccessComponent = authAndAccessComponent;
+        this.authorityGrantRepository = authorityGrantRepository;
     }
 
     @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
@@ -48,15 +50,24 @@ public class RulesetController {
         RuleSetDefinition def = new RuleSetDefinition();
         def.setName(rulesetName);
         def.setRulesetId(UUID.randomUUID().toString().toUpperCase(Locale.ROOT));
+        def = this.ruleSetRepository.save(def);
         // Populate new ruleset with authority grant for requesting user
         AuthorityGrant grant = new AuthorityGrant();
         grant.setManage(true);
         grant.setWrite(true);
         grant.setRead(true);
-        grant.setRuleset(def);
         grant.setPrincipal(this.authorityGroupRepository
-                .getAuthorityGroupByName(u.getEmail().toLowerCase(Locale.ROOT)));
-        def.setGrants(Collections.singleton(grant));
+                .getAuthorityGroupByName("user:" + u.getEmail().toLowerCase(Locale.ROOT)));
+        grant = this.authorityGrantRepository.save(grant);
+        grant.setRuleset(def);
+        def.setGrants(new HashSet<>(Collections.singleton(grant)));
+        if (grant.getPrincipal().getGrants() == null) {
+            grant.getPrincipal().setGrants(new HashSet<>(Collections.singleton(grant)));
+        } else {
+            Collection<AuthorityGrant> grants = new HashSet<>(grant.getPrincipal().getGrants());
+            grants.add(grant);
+            grant.getPrincipal().setGrants(grants);
+        }
         def = this.ruleSetRepository.save(def);
         return ResponseEntity.ok(def);
     }
