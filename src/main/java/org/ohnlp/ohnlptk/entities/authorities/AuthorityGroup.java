@@ -1,6 +1,9 @@
 package org.ohnlp.ohnlptk.entities.authorities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NaturalId;
@@ -12,6 +15,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "AUTHORITY_GROUPS")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class AuthorityGroup {
     @Id
     @Column
@@ -24,12 +28,13 @@ public class AuthorityGroup {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
+    @JsonManagedReference
     private Collection<AuthorityGrant> grants;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    @JsonIgnore
+    @JsonManagedReference
     private Collection<AuthorityGroupMembership> members;
 
     public Long getId() {

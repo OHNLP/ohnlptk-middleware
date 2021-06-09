@@ -1,12 +1,17 @@
 package org.ohnlp.ohnlptk.entities.rulesets;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Table(name = "RULESET_MATCHRULES")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+
 public class RuleSetMatchRule {
     @Id
     @Column
@@ -27,7 +32,7 @@ public class RuleSetMatchRule {
 
     @ManyToOne
     @JoinColumn
-    @JsonIgnore
+    @JsonBackReference
     private RuleSetDefinition definition;
 
     public Long getId() {

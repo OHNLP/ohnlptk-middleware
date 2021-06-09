@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiOperation;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
 import org.ohnlp.ohnlptk.entities.APIKey;
 import org.ohnlp.ohnlptk.repositories.APIKeyRepository;
-import org.ohnlp.ohnlptk.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

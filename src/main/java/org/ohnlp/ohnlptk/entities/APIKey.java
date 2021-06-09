@@ -1,6 +1,8 @@
 package org.ohnlp.ohnlptk.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -8,6 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "API_KEYS")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class APIKey {
     @Id
     @Column
@@ -17,7 +20,7 @@ public class APIKey {
     @ManyToOne
     @JoinColumn
     @NaturalId
-    @JsonIgnore
+    @JsonBackReference
     private User user;
 
     @Column

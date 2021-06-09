@@ -1,5 +1,8 @@
 package org.ohnlp.ohnlptk.entities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NaturalId;
@@ -13,6 +16,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "USERS")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User {
     @Id
     @Column
@@ -32,11 +36,13 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonManagedReference
     private Collection<APIKey> apiKeys;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonManagedReference
     private Collection<AuthorityGroupMembership> groups;
 
     protected User() {}
