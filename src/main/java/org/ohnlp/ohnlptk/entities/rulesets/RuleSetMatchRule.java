@@ -52,6 +52,34 @@ public class RuleSetMatchRule {
         return norm;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setRegexp(String regexp) {
+        this.regexp = regexp;
+    }
+
+    public void setRule_name(String rule_name) {
+        this.rule_name = rule_name;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setNorm(String norm) {
+        this.norm = norm;
+    }
+
+    public RuleSetDefinition getDefinition() {
+        return definition;
+    }
+
+    public void setDefinition(RuleSetDefinition definition) {
+        this.definition = definition;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

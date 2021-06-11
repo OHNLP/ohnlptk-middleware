@@ -2,10 +2,9 @@ package org.ohnlp.ohnlptk.dto.user;
 
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.dto.auth.APIKeyDTO;
-import org.ohnlp.ohnlptk.dto.authorities.UserAuthorityGroupMembershipDTO;
+import org.ohnlp.ohnlptk.dto.authorities.UserViewAuthorityGroupMembershipDTO;
 import org.ohnlp.ohnlptk.entities.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
     private String email;
     private String imageUrl;
     private Collection<APIKeyDTO> apiKeys;
-    private Collection<UserAuthorityGroupMembershipDTO> groups;
+    private Collection<UserViewAuthorityGroupMembershipDTO> groups;
 
     public UserDTO() {
         super(User.class);
@@ -35,7 +34,7 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
                 .map(a -> new APIKeyDTO().generateFromEntity(a))
                 .collect(Collectors.toList());
         this.groups = entity.getGroups().stream()
-                .map(a -> new UserAuthorityGroupMembershipDTO().generateFromEntity(a))
+                .map(a -> new UserViewAuthorityGroupMembershipDTO().generateFromEntity(a))
                 .collect(Collectors.toList());
         return this;
     }
@@ -43,8 +42,12 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
     @Override
     protected User mergeFromDTO(User existing, UserDTO dto) {
         // No changes allowed for id, name, email, and imageUrl
-        existing.setApiKeys(new ArrayList<>(dto.apiKeys.stream().map(a -> a.mergeFromDTO(a)).collect(Collectors.toList())));
-        existing.setGroups(new ArrayList<>(dto.groups.stream().map(a -> a.mergeFromDTO(a)).collect(Collectors.toList())));
+        existing.setApiKeys(dto.apiKeys.stream().map(a -> a.mergeFromDTO(a))
+                .peek(a -> a.setUser(existing))
+                .collect(Collectors.toList()));
+        existing.setGroups(dto.groups.stream().map(a -> a.mergeFromDTO(a))
+                .peek(a -> a.setPrincipal(existing))
+                .collect(Collectors.toList()));
         return existing;
     }
 
@@ -93,11 +96,11 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
         this.apiKeys = apiKeys;
     }
 
-    public Collection<UserAuthorityGroupMembershipDTO> getGroups() {
+    public Collection<UserViewAuthorityGroupMembershipDTO> getGroups() {
         return groups;
     }
 
-    public void setGroups(Collection<UserAuthorityGroupMembershipDTO> groups) {
+    public void setGroups(Collection<UserViewAuthorityGroupMembershipDTO> groups) {
         this.groups = groups;
     }
 }

@@ -38,6 +38,26 @@ public class RuleSetRegularExpression {
         return text;
     }
 
+    public RuleSetDefinition getDefinition() {
+        return definition;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setDefinition(RuleSetDefinition definition) {
+        this.definition = definition;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
