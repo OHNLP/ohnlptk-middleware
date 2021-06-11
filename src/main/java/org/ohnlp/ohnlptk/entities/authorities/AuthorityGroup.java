@@ -8,6 +8,7 @@ import org.hibernate.annotations.NaturalId;
 import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class AuthorityGroup {
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
-    private Collection<AuthorityGrant> grants;
+    private Collection<AuthorityGrant> grants = new ArrayList<>();;
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(
@@ -42,7 +43,7 @@ public class AuthorityGroup {
             }
     )
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<AuthorityGroupMembership> members;
+    private Collection<AuthorityGroupMembership> members = new ArrayList<>();;
 
     public Long getId() {
         return id;

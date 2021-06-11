@@ -9,6 +9,7 @@ import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -31,12 +32,12 @@ public class RuleSetDefinition {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<RuleSetRegularExpression> regexps;
+    private Collection<RuleSetRegularExpression> regexps = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<RuleSetMatchRule> matchrules;
+    private Collection<RuleSetMatchRule> matchrules = new ArrayList<>();;
 
     @Column
     private String contexts;

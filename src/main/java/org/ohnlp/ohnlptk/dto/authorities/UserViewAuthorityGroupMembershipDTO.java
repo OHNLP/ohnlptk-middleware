@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.authorities;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 
@@ -25,7 +26,7 @@ public class UserViewAuthorityGroupMembershipDTO extends LoadableDTO<AuthorityGr
     }
 
     @Override
-    protected AuthorityGroupMembership mergeFromDTO(AuthorityGroupMembership existing, UserViewAuthorityGroupMembershipDTO dto) {
+    public AuthorityGroupMembership mergeFromDTO(AuthorityGroupMembership existing, DTOFactory dto) {
         return existing; // Users cannot edit their own memberships directly unless removing, code flow should go through auth group instead
     }
 

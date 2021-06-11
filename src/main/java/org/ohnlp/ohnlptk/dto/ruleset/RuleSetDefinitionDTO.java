@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.ruleset;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.dto.authorities.RuleSetViewAuthorityGrantDTO;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
@@ -42,15 +43,15 @@ public class RuleSetDefinitionDTO extends LoadableDTO<RuleSetDefinition, RuleSet
     }
 
     @Override
-    protected RuleSetDefinition mergeFromDTO(RuleSetDefinition existing, RuleSetDefinitionDTO dto) {
+    public RuleSetDefinition mergeFromDTO(RuleSetDefinition existing, DTOFactory factory) {
         // id and rulesetId are read-only
         existing.setName(this.name);
         // TODO when merging handle potential deletions by cross-checking IDs and deleting any entities from db that are
         // removed - instead we are currently leaving orphaned records everywhere in DB
-        existing.setRegexps(dto.regexps.stream().map(r -> r.mergeFromDTO(r))
+        existing.setRegexps(this.regexps.stream().map(factory::mergeOrCreate)
                 .peek(r -> r.setDefinition(existing))
                 .collect(Collectors.toList()));
-        existing.setMatchrules(dto.matchRules.stream().map(r -> r.mergeFromDTO(r))
+        existing.setMatchrules(this.matchRules.stream().map(factory::mergeOrCreate)
                 .peek(r -> r.setDefinition(existing))
                 .collect(Collectors.toList()));
         existing.setContexts(this.contexts);

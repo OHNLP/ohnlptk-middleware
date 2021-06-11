@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.ruleset;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetMatchRule;
 
@@ -29,7 +30,7 @@ public class RuleSetMatchRuleDTO extends LoadableDTO<RuleSetMatchRule, RuleSetMa
     }
 
     @Override
-    protected RuleSetMatchRule mergeFromDTO(RuleSetMatchRule existing, RuleSetMatchRuleDTO dto) {
+    public RuleSetMatchRule mergeFromDTO(RuleSetMatchRule existing, DTOFactory factory) {
         // ID is read-only
         existing.setRegexp(this.regexp);
         existing.setRule_name(this.rule_name);

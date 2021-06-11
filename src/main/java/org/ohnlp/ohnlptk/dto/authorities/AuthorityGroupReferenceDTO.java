@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.authorities;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 
@@ -25,7 +26,7 @@ public class AuthorityGroupReferenceDTO extends LoadableDTO<AuthorityGroup, Auth
     }
 
     @Override
-    protected AuthorityGroup mergeFromDTO(AuthorityGroup existing, AuthorityGroupReferenceDTO dto) {
+    public AuthorityGroup mergeFromDTO(AuthorityGroup existing, DTOFactory factory) {
         return existing; // Read-Only - we don't adjust memberships here
     }
 

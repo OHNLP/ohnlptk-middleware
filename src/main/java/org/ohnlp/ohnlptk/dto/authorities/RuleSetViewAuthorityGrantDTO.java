@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.authorities;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
@@ -32,9 +33,9 @@ public class RuleSetViewAuthorityGrantDTO extends LoadableDTO<AuthorityGrant, Ru
     }
 
     @Override
-    protected AuthorityGrant mergeFromDTO(AuthorityGrant existing, RuleSetViewAuthorityGrantDTO dto) {
+    public AuthorityGrant mergeFromDTO(AuthorityGrant existing, DTOFactory factory) {
         // ID is read-only
-        AuthorityGroup grp = dto.principal.mergeFromDTO(dto.principal);
+        AuthorityGroup grp = factory.mergeOrCreate(this.principal);
         existing.setPrincipal(grp);
         if (this.id == null || !grp.getGrants().stream().map(AuthorityGrant::getId).collect(Collectors.toSet()).contains(this.id)) {
             grp.getGrants().add(existing);

@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.auth;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.APIKey;
 
@@ -25,7 +26,7 @@ public class APIKeyDTO extends LoadableDTO<APIKey, APIKeyDTO> {
     }
 
     @Override
-    protected APIKey mergeFromDTO(APIKey existing, APIKeyDTO dto) {
+    public APIKey mergeFromDTO(APIKey existing, DTOFactory factory) {
         return existing; // Read-only
     }
 

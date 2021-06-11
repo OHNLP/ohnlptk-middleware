@@ -1,8 +1,12 @@
 package org.ohnlp.ohnlptk.dto;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.PersistenceContext;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
+
+import javax.persistence.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -20,10 +24,13 @@ import java.lang.reflect.InvocationTargetException;
 public abstract class LoadableDTO<ENTITY_TYPE, DTO_TYPE> {
 
     @PersistenceContext
+    @JsonIgnore
     private EntityManager entityManager;
-
+    @JsonIgnore
     private final Class<ENTITY_TYPE> entityTypeClazz;
+    @JsonIgnore
     private Field idField;
+    @JsonIgnore
     private Constructor<ENTITY_TYPE> ctor;
 
     protected LoadableDTO(Class<ENTITY_TYPE> entityTypeClazz) {
@@ -55,12 +62,12 @@ public abstract class LoadableDTO<ENTITY_TYPE, DTO_TYPE> {
 
 
     /**
-     * Merges a DTO view into an existing hibernate entity representation
-     * @param existing The hibernate entity representation
-     * @param dto THe dto entity representation
+     * Merges a DTO view into an existing hibernate entity representation.
+     * @param existing The hibernate entity representation existing in JPA Repository
+     * @param factory The factory class for any new DTO instances that need to be merged/created
      * @return The merged entity
      */
-    protected abstract ENTITY_TYPE mergeFromDTO(ENTITY_TYPE existing, DTO_TYPE dto);
+    public abstract ENTITY_TYPE mergeFromDTO(ENTITY_TYPE existing, DTOFactory factory);
 
     /**
      * @return The identity value as represented in the DTO, typically corresponding to JPA's @Id
@@ -69,32 +76,23 @@ public abstract class LoadableDTO<ENTITY_TYPE, DTO_TYPE> {
     public abstract Object identityValue();
 
     /**
-     * Does the actual merging of DTOs and/or creation of new instances as appropriate, and handles saving
-     *
-     * @param dto The DTO to create/merge an entity for
-     * @return The final entity as saved via hibernate
+     * @return The class of the produced entity
      */
-    public ENTITY_TYPE mergeFromDTO(DTO_TYPE dto) {
-        // Check to see if an existing entity exists and create if not
-        ENTITY_TYPE entity;
-        if (identityValue() != null) {
-            entity = this.entityManager.find(entityTypeClazz, identityValue());
-            if (entity == null) {
-                throw new IllegalArgumentException("Supplied a DTO with an identity value that does not exist in JPA Repository");
-            }
-        } else {
-            try {
-                entity = this.ctor.newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                throw new IllegalStateException("Failed to invoke entity constructor", e);
-            }
-            this.entityManager.persist(entity);
-        }
-        // Merge in DTO
-        entity = mergeFromDTO(entity, dto);
-        // Save
-        entity = this.entityManager.merge(entity);
-        return entity;
+    public Class<ENTITY_TYPE> getEntityTypeClazz() {
+        return entityTypeClazz;
     }
 
+    /**
+     * @return The ID Field in the entity
+     */
+    public Field getIdField() {
+        return idField;
+    }
+
+    /**
+     * @return The entity's constructor
+     */
+    public Constructor<ENTITY_TYPE> getCtor() {
+        return ctor;
+    }
 }

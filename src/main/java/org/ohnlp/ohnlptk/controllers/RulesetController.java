@@ -2,6 +2,8 @@ package org.ohnlp.ohnlptk.controllers;
 
 import io.swagger.annotations.ApiOperation;
 import org.ohnlp.ohnlptk.auth.AuthAndAccessComponent;
+import org.ohnlp.ohnlptk.dto.DTOFactory;
+import org.ohnlp.ohnlptk.dto.ruleset.RuleSetDefinitionDTO;
 import org.ohnlp.ohnlptk.entities.User;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
@@ -29,22 +31,24 @@ public class RulesetController {
     private final AuthorityGroupRepository authorityGroupRepository;
     private final AuthAndAccessComponent authAndAccessComponent;
     private final AuthorityGrantRepository authorityGrantRepository;
+    private final DTOFactory dtoFactory;
 
 
     public RulesetController(RuleSetRepository ruleSetRepository, UserRepository userRepository,
                              AuthorityGroupRepository authorityGroupRepository, AuthAndAccessComponent authAndAccessComponent,
-                             AuthorityGrantRepository authorityGrantRepository) {
+                             AuthorityGrantRepository authorityGrantRepository, DTOFactory dtoFactory) {
         this.ruleSetRepository = ruleSetRepository;
         this.userRepository = userRepository;
         this.authorityGroupRepository = authorityGroupRepository;
         this.authAndAccessComponent = authAndAccessComponent;
         this.authorityGrantRepository = authorityGrantRepository;
+        this.dtoFactory = dtoFactory;
     }
 
     @ApiOperation("Creates and returns new ruleset with the given name, with the requesting user as only person with " +
             "manage access")
     @PostMapping("/newRuleset")
-    public ResponseEntity<RuleSetDefinition> createRuleset(@ApiIgnore Authentication auth, @RequestParam("name") String rulesetName) {
+    public ResponseEntity<RuleSetDefinitionDTO> createRuleset(@ApiIgnore Authentication auth, @RequestParam("name") String rulesetName) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         // Create new ruleset itself
         RuleSetDefinition def = new RuleSetDefinition();
@@ -69,7 +73,7 @@ public class RulesetController {
             grant.getPrincipal().setGrants(grants);
         }
         def = this.ruleSetRepository.save(def);
-        return ResponseEntity.ok(def);
+        return ResponseEntity.ok(new RuleSetDefinitionDTO().generateFromEntity(def));
     }
 
     @ApiOperation("Retrieves a mapping of ruleset names => id for which the authenticated user has read access")
@@ -83,7 +87,7 @@ public class RulesetController {
 
     @ApiOperation("Retrieves, if user has read permissions to it, the ruleset corresponding to ruleset_id")
     @GetMapping("/getForID")
-    public ResponseEntity<RuleSetDefinition> getRulesetForID(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetID) {
+    public ResponseEntity<RuleSetDefinitionDTO> getRulesetForID(@ApiIgnore Authentication auth, @RequestParam("ruleset_id") String rulesetID) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition def = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(rulesetID);
         if (def == null) {
@@ -91,7 +95,7 @@ public class RulesetController {
         }
         // Filter grants to semantic has read perms, then get group members and check if user is contained within
         if (this.authAndAccessComponent.userCanReadRuleset(u, def)) {
-            return ResponseEntity.ok(def);
+            return ResponseEntity.ok(new RuleSetDefinitionDTO().generateFromEntity(def));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -99,15 +103,15 @@ public class RulesetController {
 
     @ApiOperation("Writes, if user has write permissions to it, the passed ruleset that should already exist")
     @PostMapping("/updateRuleset")
-    public ResponseEntity<RuleSetDefinition> updateRuleset(@ApiIgnore Authentication auth, @RequestBody RuleSetDefinition def) {
+    public ResponseEntity<RuleSetDefinitionDTO> updateRuleset(@ApiIgnore Authentication auth, @RequestBody RuleSetDefinitionDTO def) {
         User u = this.authAndAccessComponent.getUserForSpringSecurityContextAuth(auth);
         RuleSetDefinition localDef = this.ruleSetRepository.getRuleSetDefinitionByRulesetId(def.getRulesetId());
         if (localDef == null) {
             return ResponseEntity.notFound().build();
         }
         if (this.authAndAccessComponent.userCanWriteRuleset(u, localDef)) {
-            def = this.ruleSetRepository.save(def);
-            return ResponseEntity.ok(def);
+            RuleSetDefinition entity = dtoFactory.mergeOrCreate(def);
+            return ResponseEntity.ok(new RuleSetDefinitionDTO().generateFromEntity(entity));
         } else {
             return ResponseEntity.notFound().build();
         }

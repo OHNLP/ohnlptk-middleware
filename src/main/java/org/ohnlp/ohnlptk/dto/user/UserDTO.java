@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.user;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.dto.auth.APIKeyDTO;
 import org.ohnlp.ohnlptk.dto.authorities.UserViewAuthorityGroupMembershipDTO;
@@ -40,12 +41,12 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
     }
 
     @Override
-    protected User mergeFromDTO(User existing, UserDTO dto) {
+    public User mergeFromDTO(User existing, DTOFactory factory) {
         // No changes allowed for id, name, email, and imageUrl
-        existing.setApiKeys(dto.apiKeys.stream().map(a -> a.mergeFromDTO(a))
+        existing.setApiKeys(this.apiKeys.stream().map(factory::mergeOrCreate)
                 .peek(a -> a.setUser(existing))
                 .collect(Collectors.toList()));
-        existing.setGroups(dto.groups.stream().map(a -> a.mergeFromDTO(a))
+        existing.setGroups(this.groups.stream().map(factory::mergeOrCreate)
                 .peek(a -> a.setPrincipal(existing))
                 .collect(Collectors.toList()));
         return existing;

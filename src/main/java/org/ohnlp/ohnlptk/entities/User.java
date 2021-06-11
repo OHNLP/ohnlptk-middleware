@@ -11,6 +11,7 @@ import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 import org.ohnlp.ohnlptk.entities.resolvers.JPAEntityResolver;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
@@ -40,12 +41,12 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<APIKey> apiKeys;
+    private Collection<APIKey> apiKeys = new ArrayList<>();;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn
     @LazyCollection(LazyCollectionOption.FALSE)
-    private Collection<AuthorityGroupMembership> groups;
+    private Collection<AuthorityGroupMembership> groups = new ArrayList<>();;
 
     protected User() {}
 

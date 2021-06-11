@@ -1,5 +1,6 @@
 package org.ohnlp.ohnlptk.dto.ruleset;
 
+import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
 
@@ -21,7 +22,7 @@ public class RuleSetRegularExpressionDTO extends LoadableDTO<RuleSetRegularExpre
     }
 
     @Override
-    protected RuleSetRegularExpression mergeFromDTO(RuleSetRegularExpression existing, RuleSetRegularExpressionDTO dto) {
+    public RuleSetRegularExpression mergeFromDTO(RuleSetRegularExpression existing, DTOFactory factory) {
         // ID Cannot be changed
         existing.setName(this.name);
         existing.setText(this.text);
