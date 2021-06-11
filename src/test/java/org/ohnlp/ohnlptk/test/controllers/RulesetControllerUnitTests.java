@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.ohnlp.ohnlptk.controllers.RulesetController;
+import org.ohnlp.ohnlptk.dto.DTOFactory;
+import org.ohnlp.ohnlptk.dto.ruleset.RuleSetDefinitionDTO;
+import org.ohnlp.ohnlptk.dto.ruleset.RuleSetRegularExpressionDTO;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetRegularExpression;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,8 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
 
     @Autowired
     private RulesetController rulesetController;
+    @Autowired
+    private DTOFactory dtoFactory;
 
     private String testRulesetId;
     private String otherUserTestRulesetId;
@@ -33,7 +38,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     @Test
     @Order(1)
     public void newRulesetTest() {
-        RuleSetDefinition definition = this.rulesetController.createRuleset(this.mockUserAuth, "Test Ruleset").getBody();
+        RuleSetDefinitionDTO definition = this.rulesetController.createRuleset(this.mockUserAuth, "Test Ruleset").getBody();
         Assert.notNull(definition, "Returned definition after create is null");
         Assert.notNull(definition.getId(), "EntityManager is not autopopulating definition ID on create");
         Assert.notNull(definition.getRulesetId(), "A ruleset lookup UUID is not autopopulated on create");
@@ -41,7 +46,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
         Assert.isTrue(definition.getGrants().size() > 0, "Created ruleset has no permission grants assigned");
         Assert.isTrue(this.authAndAccessComponent.userCanManageRuleset(
                                 this.authAndAccessComponent.getUserForSpringSecurityContextAuth(this.mockUserAuth),
-                                definition),
+                                dtoFactory.mergeOrCreate(definition)),
                 "Created RulesetDefinition does not have the Creating User with Manage Permissions!");
         this.testRulesetId = definition.getRulesetId();
 
@@ -71,7 +76,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     @Order(3)
     public void getForIDTest() {
         // Check for created ruleset with correct user
-        RuleSetDefinition def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
+        RuleSetDefinitionDTO def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
         Assert.notNull(def, "Ruleset Repository does not contain the previously created ruleset definition");
         Assert.isTrue(def.getName().equals("Test Ruleset"), "Retrieved ruleset is of a different name");
         Assert.isTrue(def.getRulesetId().equals(this.testRulesetId), "Retrieved ruleset is of a ruleset ID");
@@ -82,7 +87,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
         Assert.isTrue(def.getRulesetId().equals(this.otherUserTestRulesetId), "Retrieved ruleset is of a ruleset ID");
 
         // Check retrieval of other user's created ruleset returns nothing with error code 404
-        ResponseEntity<RuleSetDefinition> resp = this.rulesetController.getRulesetForID(this.mockUserAuth2, this.testRulesetId);
+        ResponseEntity<RuleSetDefinitionDTO> resp = this.rulesetController.getRulesetForID(this.mockUserAuth2, this.testRulesetId);
         Assert.isNull(resp.getBody(), "A ruleset was returned when user should not have read access");
         Assert.isTrue(resp.getStatusCodeValue() == 404,
                 "An error code other than 404 not found returned for mis-authenticated retrievals, potentially" +
@@ -112,11 +117,11 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
                 "Created ruleset is not in the returned ruleset list");
         // Ensure user actually has read perms to all retrieved rulesets
         for (String rulesetID : defs.values()) {
-            RuleSetDefinition definition = this.rulesetController.getRulesetForID(this.mockUserAuth, rulesetID).getBody();
+            RuleSetDefinitionDTO definition = this.rulesetController.getRulesetForID(this.mockUserAuth, rulesetID).getBody();
             Assert.isTrue(
                     this.authAndAccessComponent.userCanReadRuleset(
                             this.authAndAccessComponent.getUserForSpringSecurityContextAuth(this.mockUserAuth),
-                            definition),
+                            dtoFactory.mergeOrCreate(definition)),
                     "A ruleset for which the user does not have read access was returned!"
                             + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(definition));
         }
@@ -135,13 +140,13 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
     @Order(5)
     public void updateRulesetTest() {
         // We already test this works correctly in #getForIDTest()
-        RuleSetDefinition def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
+        RuleSetDefinitionDTO def = this.rulesetController.getRulesetForID(this.mockUserAuth, this.testRulesetId).getBody();
         // Verify not polluted from elsewhere
         Assert.isTrue(Objects.requireNonNull(def).getRegexps().isEmpty(), "Regular Expressions are Not Empty Before Update");
         // Mock a sample regex and update our definition with it
-        RuleSetRegularExpression regex = Mockito.mock(RuleSetRegularExpression.class);
-        Mockito.when(regex.getName()).thenReturn("TESTREGEXLIST");
-        Mockito.when(regex.getText()).thenReturn("Test Regex 1\nTest Regex 2\r\nTest Regex 3");
+        RuleSetRegularExpressionDTO regex = new RuleSetRegularExpressionDTO();
+        regex.setName("TESTREGEXLIST");
+        regex.setText("Test Regex 1\nTest Regex 2\r\nTest Regex 3");
         Objects.requireNonNull(def).setRegexps(new ArrayList<>(Collections.singletonList(regex)));
         def = this.rulesetController.updateRuleset(this.mockUserAuth, def).getBody();
         Assert.notNull(def, "Returned RulesetDefinition after Update is Null");
@@ -156,7 +161,7 @@ public class RulesetControllerUnitTests extends AuthenticatedControllerTest {
         Assert.isTrue(Objects.requireNonNull(def).getRegexps().isEmpty(), "Regular Expressions are Not Empty Before Update");
         Objects.requireNonNull(def).setRegexps(Collections.singletonList(regex));
         // And save using mockUserAuth instead
-        ResponseEntity<RuleSetDefinition> resp = this.rulesetController.updateRuleset(this.mockUserAuth, def);
+        ResponseEntity<RuleSetDefinitionDTO> resp = this.rulesetController.updateRuleset(this.mockUserAuth, def);
         Assert.isNull(resp.getBody(), "A ruleset was returned when user should not have write access");
         Assert.isTrue(resp.getStatusCodeValue() == 404,
                 "An error code other than 404 not found returned for mis-authenticated writes, potentially" +
