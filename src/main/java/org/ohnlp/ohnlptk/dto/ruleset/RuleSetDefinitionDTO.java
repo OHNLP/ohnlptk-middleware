@@ -2,7 +2,7 @@ package org.ohnlp.ohnlptk.dto.ruleset;
 
 import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
-import org.ohnlp.ohnlptk.dto.authorities.RuleSetViewAuthorityGrantDTO;
+import org.ohnlp.ohnlptk.dto.authorities.AuthorityGrantDTO;
 import org.ohnlp.ohnlptk.entities.rulesets.RuleSetDefinition;
 
 import java.util.Collection;
@@ -18,7 +18,7 @@ public class RuleSetDefinitionDTO extends LoadableDTO<RuleSetDefinition, RuleSet
     private Collection<RuleSetRegularExpressionDTO> regexps;
     private Collection<RuleSetMatchRuleDTO> matchRules;
     private String contexts;
-    private Collection<RuleSetViewAuthorityGrantDTO> grants;
+    private Collection<AuthorityGrantDTO> grants;
 
     public RuleSetDefinitionDTO() {
         super(RuleSetDefinition.class);
@@ -37,7 +37,7 @@ public class RuleSetDefinitionDTO extends LoadableDTO<RuleSetDefinition, RuleSet
                 .collect(Collectors.toList());
         this.contexts = entity.getContexts();
         this.grants = entity.getGrants().stream()
-                .map(r -> new RuleSetViewAuthorityGrantDTO().generateFromEntity(r))
+                .map(r -> new AuthorityGrantDTO().generateFromEntity(r))
                 .collect(Collectors.toList());
         return this;
     }
@@ -111,11 +111,11 @@ public class RuleSetDefinitionDTO extends LoadableDTO<RuleSetDefinition, RuleSet
         this.contexts = contexts;
     }
 
-    public Collection<RuleSetViewAuthorityGrantDTO> getGrants() {
+    public Collection<AuthorityGrantDTO> getGrants() {
         return grants;
     }
 
-    public void setGrants(Collection<RuleSetViewAuthorityGrantDTO> grants) {
+    public void setGrants(Collection<AuthorityGrantDTO> grants) {
         this.grants = grants;
     }
 }

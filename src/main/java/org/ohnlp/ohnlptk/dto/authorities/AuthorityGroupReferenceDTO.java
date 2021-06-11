@@ -27,7 +27,7 @@ public class AuthorityGroupReferenceDTO extends LoadableDTO<AuthorityGroup, Auth
 
     @Override
     public AuthorityGroup mergeFromDTO(AuthorityGroup existing, DTOFactory factory) {
-        return existing; // Read-Only - we don't adjust memberships here
+        return existing; // References cannot be edited
     }
 
     @Override

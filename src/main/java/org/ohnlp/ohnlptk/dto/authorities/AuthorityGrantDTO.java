@@ -2,6 +2,7 @@ package org.ohnlp.ohnlptk.dto.authorities;
 
 import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
+import org.ohnlp.ohnlptk.dto.ruleset.RuleSetReferenceDTO;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGrant;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroup;
 
@@ -10,22 +11,24 @@ import java.util.stream.Collectors;
 /**
  * DTO for a ruleset's view of its authority grants.
  */
-public class RuleSetViewAuthorityGrantDTO extends LoadableDTO<AuthorityGrant, RuleSetViewAuthorityGrantDTO> {
+public class AuthorityGrantDTO extends LoadableDTO<AuthorityGrant, AuthorityGrantDTO> {
 
     private Long id;
     private AuthorityGroupReferenceDTO principal;
+    private RuleSetReferenceDTO ruleset;
     private boolean read;
     private boolean write;
     private boolean manage;
 
-    public RuleSetViewAuthorityGrantDTO() {
+    public AuthorityGrantDTO() {
         super(AuthorityGrant.class);
     }
 
     @Override
-    public RuleSetViewAuthorityGrantDTO generateFromEntity(AuthorityGrant entity) {
+    public AuthorityGrantDTO generateFromEntity(AuthorityGrant entity) {
         this.id = entity.getId();
         this.principal = new AuthorityGroupReferenceDTO().generateFromEntity(entity.getPrincipal());
+        this.ruleset = new RuleSetReferenceDTO().generateFromEntity(entity.getRuleset());
         this.read = entity.isRead();
         this.write = entity.isWrite();
         this.manage = entity.isManage();
@@ -39,6 +42,10 @@ public class RuleSetViewAuthorityGrantDTO extends LoadableDTO<AuthorityGrant, Ru
         existing.setPrincipal(grp);
         if (this.id == null || !grp.getGrants().stream().map(AuthorityGrant::getId).collect(Collectors.toSet()).contains(this.id)) {
             grp.getGrants().add(existing);
+        }
+        existing.setRuleset(factory.mergeOrCreate(this.ruleset));
+        if (this.id == null || !existing.getRuleset().getGrants().stream().map(AuthorityGrant::getId).collect(Collectors.toSet()).contains(this.id)) {
+            existing.getRuleset().getGrants().add(existing);
         }
         existing.setRead(this.read);
         existing.setWrite(this.write);

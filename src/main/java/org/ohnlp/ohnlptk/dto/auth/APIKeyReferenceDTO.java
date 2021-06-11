@@ -2,35 +2,32 @@ package org.ohnlp.ohnlptk.dto.auth;
 
 import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
-import org.ohnlp.ohnlptk.dto.user.UserReferenceDTO;
 import org.ohnlp.ohnlptk.entities.APIKey;
 
 /**
- * A full-view read-only DTO representation of {@link APIKey}.
+ * A user-view specific read-only DTO representation of {@link APIKey}.
  */
-public class APIKeyDTO extends LoadableDTO<APIKey, APIKeyDTO> {
+public class APIKeyReferenceDTO extends LoadableDTO<APIKey, APIKeyReferenceDTO> {
 
     private Long id;
     private String token;
     private String name;
-    private UserReferenceDTO user;
 
-    public APIKeyDTO() {
+    public APIKeyReferenceDTO() {
         super(APIKey.class);
     }
 
     @Override
-    public APIKeyDTO generateFromEntity(APIKey entity) {
+    public APIKeyReferenceDTO generateFromEntity(APIKey entity) {
         this.id = entity.getId();
         this.token = entity.getToken();
         this.name = entity.getName();
-        this.user = new UserReferenceDTO().generateFromEntity(entity.getUser());
         return this;
     }
 
     @Override
     public APIKey mergeFromDTO(APIKey existing, DTOFactory factory) {
-        return existing; // Read-only
+        return existing; // References cannot be edited
     }
 
     @Override

@@ -2,32 +2,35 @@ package org.ohnlp.ohnlptk.dto.authorities;
 
 import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
+import org.ohnlp.ohnlptk.dto.user.UserReferenceDTO;
 import org.ohnlp.ohnlptk.entities.authorities.AuthorityGroupMembership;
 
 /**
  * DTO for a User's view of their authority group memberships (will not contain
  * backreferences back to the user to prevent circular dependencies)
  */
-public class UserViewAuthorityGroupMembershipDTO extends LoadableDTO<AuthorityGroupMembership, UserViewAuthorityGroupMembershipDTO> {
+public class AuthorityGroupMembershipDTO extends LoadableDTO<AuthorityGroupMembership, AuthorityGroupMembershipDTO> {
     private Long id;
     private AuthorityGroupReferenceDTO authorityGroup;
+    private UserReferenceDTO principal;
     private boolean isAdmin;
 
-    public UserViewAuthorityGroupMembershipDTO() {
+    public AuthorityGroupMembershipDTO() {
         super(AuthorityGroupMembership.class);
     }
 
     @Override
-    public UserViewAuthorityGroupMembershipDTO generateFromEntity(AuthorityGroupMembership entity) {
+    public AuthorityGroupMembershipDTO generateFromEntity(AuthorityGroupMembership entity) {
         this.id = entity.getId();
         this.authorityGroup = new AuthorityGroupReferenceDTO().generateFromEntity(entity.getGroup());
+        this.principal = new UserReferenceDTO().generateFromEntity(entity.getPrincipal());
         this.isAdmin = entity.isAdmin();
         return this;
     }
 
     @Override
     public AuthorityGroupMembership mergeFromDTO(AuthorityGroupMembership existing, DTOFactory dto) {
-        return existing; // Users cannot edit their own memberships directly unless removing, code flow should go through auth group instead
+        return existing; // Users cannot edit their own memberships directly unless add/removing, code flow should go through direct entity creation
     }
 
     @Override

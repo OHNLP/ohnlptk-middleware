@@ -3,7 +3,8 @@ package org.ohnlp.ohnlptk.test.controllers;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.ohnlp.ohnlptk.controllers.APIKeyController;
-import org.ohnlp.ohnlptk.entities.APIKey;
+import org.ohnlp.ohnlptk.dto.auth.APIKeyDTO;
+import org.ohnlp.ohnlptk.dto.auth.APIKeyReferenceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,7 @@ public class APIKeyControllerUnitTests extends AuthenticatedControllerTest {
     @Test
     @Order(1)
     public void createApiKeyTest() {
-        APIKey resp = this.apiKeyController.create(this.mockUserAuth, "User 1 API Key");
-        Assert.isTrue(resp.getUser().getEmail().equals(this.mockUserAuth.getName()), "User mismatch in created API key");
+        APIKeyDTO resp = this.apiKeyController.create(this.mockUserAuth, "User 1 API Key");
         Assert.isTrue(resp.getName().equals("User 1 API Key"), "Created API Key Name Mismatch");
         Assert.notNull(resp.getToken(), "Generated API Key Token is null");
         Assert.notNull(resp.getId(), "Generated API Key lacks a hibernate entity ID");
@@ -51,7 +51,7 @@ public class APIKeyControllerUnitTests extends AuthenticatedControllerTest {
     @Test
     @Order(2)
     public void apiKeysTest() {
-        Map<String, APIKey> resp = this.apiKeyController.getApiKeys(this.mockUserAuth);
+        Map<String, APIKeyDTO> resp = this.apiKeyController.getApiKeys(this.mockUserAuth);
         Assert.isTrue(!resp.containsKey("User 2 API Key"), "User 2's API Keys were returned for user 1");
         Assert.isTrue(resp.size() == 2, "Expected 2 api keys for user 1, got " + resp.size());
         Assert.isTrue(resp.containsKey("User 1 API Key"), "User 1's API Key #1 not populated in returned results");
@@ -67,13 +67,13 @@ public class APIKeyControllerUnitTests extends AuthenticatedControllerTest {
     @Test
     @Order(3)
     public void deleteKeyTest() {
-        ResponseEntity<Map<String, APIKey>> resp = this.apiKeyController.delete(this.mockUserAuth2, this.generatedAPIToken);
+        ResponseEntity<Map<String, APIKeyDTO>> resp = this.apiKeyController.delete(this.mockUserAuth2, this.generatedAPIToken);
         Assert.isTrue(resp.getStatusCode().isError(), "API Key Deletion Successful using Wrong User");
         Assert.isTrue(resp.getStatusCode().equals(HttpStatus.NOT_FOUND), "Return code other than 404 for " +
                 "bad auth deletion, may leak presence of sensitive information and is vulnerable to dictionary attacks");
         resp = this.apiKeyController.delete(this.mockUserAuth, this.generatedAPIToken);
         Assert.isTrue(resp.getStatusCode().is2xxSuccessful(), "Return code for correct deletion is other than successful");
-        Map<String, APIKey> keyMap = Objects.requireNonNull(resp.getBody());
+        Map<String, APIKeyDTO> keyMap = Objects.requireNonNull(resp.getBody());
         Assert.isTrue(keyMap.size() == 1, "Expected only 1 element in returned API key listing");
         Assert.isTrue(!keyMap.containsKey("User 1 API Key"), "User 1's API Key #1 still populated in returned results despite deletion");
         Assert.isTrue(keyMap.containsKey("User 1 API Key 2"), "User 1's API Key #2 was incorrectly removed");

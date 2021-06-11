@@ -2,8 +2,8 @@ package org.ohnlp.ohnlptk.dto.user;
 
 import org.ohnlp.ohnlptk.dto.DTOFactory;
 import org.ohnlp.ohnlptk.dto.LoadableDTO;
-import org.ohnlp.ohnlptk.dto.auth.APIKeyDTO;
-import org.ohnlp.ohnlptk.dto.authorities.UserViewAuthorityGroupMembershipDTO;
+import org.ohnlp.ohnlptk.dto.auth.APIKeyReferenceDTO;
+import org.ohnlp.ohnlptk.dto.authorities.AuthorityGroupMembershipDTO;
 import org.ohnlp.ohnlptk.entities.User;
 
 import java.util.Collection;
@@ -18,8 +18,8 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
     private String name;
     private String email;
     private String imageUrl;
-    private Collection<APIKeyDTO> apiKeys;
-    private Collection<UserViewAuthorityGroupMembershipDTO> groups;
+    private Collection<APIKeyReferenceDTO> apiKeys;
+    private Collection<AuthorityGroupMembershipDTO> groups;
 
     public UserDTO() {
         super(User.class);
@@ -32,10 +32,10 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
         this.email = entity.getEmail();
         this.imageUrl = entity.getImageUrl();
         this.apiKeys = entity.getApiKeys().stream()
-                .map(a -> new APIKeyDTO().generateFromEntity(a))
+                .map(a -> new APIKeyReferenceDTO().generateFromEntity(a))
                 .collect(Collectors.toList());
         this.groups = entity.getGroups().stream()
-                .map(a -> new UserViewAuthorityGroupMembershipDTO().generateFromEntity(a))
+                .map(a -> new AuthorityGroupMembershipDTO().generateFromEntity(a))
                 .collect(Collectors.toList());
         return this;
     }
@@ -89,19 +89,19 @@ public class UserDTO extends LoadableDTO<User, UserDTO> {
         this.imageUrl = imageUrl;
     }
 
-    public Collection<APIKeyDTO> getApiKeys() {
+    public Collection<APIKeyReferenceDTO> getApiKeys() {
         return apiKeys;
     }
 
-    public void setApiKeys(Collection<APIKeyDTO> apiKeys) {
+    public void setApiKeys(Collection<APIKeyReferenceDTO> apiKeys) {
         this.apiKeys = apiKeys;
     }
 
-    public Collection<UserViewAuthorityGroupMembershipDTO> getGroups() {
+    public Collection<AuthorityGroupMembershipDTO> getGroups() {
         return groups;
     }
 
-    public void setGroups(Collection<UserViewAuthorityGroupMembershipDTO> groups) {
+    public void setGroups(Collection<AuthorityGroupMembershipDTO> groups) {
         this.groups = groups;
     }
 }
