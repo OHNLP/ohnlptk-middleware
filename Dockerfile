@@ -5,6 +5,8 @@ RUN apk add --no-cache screen
 # Identify environment configuration to use
 ARG RUNTIME_ENV=local
 
+WORKDIR .
+
 # Compile and Run
 RUN mvn clean install
 ARG JAR_FILE=target/*.jar
