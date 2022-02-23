@@ -1,0 +1,16 @@
+---
+version: "3"
+services:
+  ohnlptk-middleware:
+    build: .
+    tty: true
+    stdin_open: true
+    container_name: ohnlptk-middleware
+    environment:
+      - RUNTIME_ENV=dev
+      - JDBC_NONPRD_USER=
+      - JDBC_NONPRD_PWD=
+      - JDBC_PRD_USER=
+      - JDBC_PRD_PWD=
+    ports:
+      - 8080:8080
