@@ -3,7 +3,7 @@
  */
 def deployMiddlewareServiceContainer() {
     return sh("""
-
+    ls -al
     # Stop and remove existing services
     docker-compose down -v --rmi all | xargs echo 
     docker stop ohnlptk-middleware_ohnlptk-middleware_1 | xargs echo
