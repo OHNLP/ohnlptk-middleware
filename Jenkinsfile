@@ -32,7 +32,6 @@ pipeline {
                 label 'middleware-ec2-stage-01'
             }
             steps {
-                cleanWs()
                 configFileProvider([
 
                     configFile(fileId: 'middleware-compose-file', targetLocation: 'docker-compose.yml')
